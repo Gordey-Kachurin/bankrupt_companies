@@ -1,4 +1,3 @@
-import imp
 from dotenv import load_dotenv
 import os
 import re
