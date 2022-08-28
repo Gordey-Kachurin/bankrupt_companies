@@ -1,5 +1,7 @@
 from settings import PATTERNS
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import InvalidSelectorException, NoSuchElementException
+
 
 def get_bankrupt_years_and_links(driver):
     """
@@ -16,21 +18,51 @@ def get_bankrupt_years_and_links(driver):
     Но если перейти на страницу года, можно найти ссылку на "Информационные сообщения"
     """
     # https://www.browserstack.com/guide/find-element-by-text-using-selenium
-    text = PATTERNS['legal_entities']
-    ur_lica = driver.find_element(By.XPATH, f"//*[ text() = '{text}' ]") 
+    text = PATTERNS["legal_entities"]
+    ur_lica = driver.find_element(By.XPATH, f"//*[ text() = '{text}' ]")
     ur_lica.click()
-    text = PATTERNS['rehabilitation_and_bankrupcy']
-    reabilitaciya_bankrotstvo = driver.find_element(By.XPATH, f"//*[ text() = '{text}' ]")  
+    text = PATTERNS["rehabilitation_and_bankrupcy"]
+    reabilitaciya_bankrotstvo = driver.find_element(
+        By.XPATH, f"//*[ text() = '{text}' ]"
+    )
     driver.get(reabilitaciya_bankrotstvo.get_attribute("href"))
 
-    years_list = driver.find_element(By.XPATH, "//div[@class='catmenu']/ul[@class='menu']") 
+    years_list = driver.find_element(
+        By.XPATH, "//div[@class='catmenu']/ul[@class='menu']"
+    )
     years_list_li_elements = years_list.find_elements(By.TAG_NAME, "li")
-    
+
     years_and_links = []
     for li in years_list_li_elements:
         a = li.find_element(By.TAG_NAME, "a")
         a_href = a.get_attribute("href")
-        if PATTERNS['regex_pattern_for_year'].match(a.text) and PATTERNS['regex_pattern_for_link'].match(a_href):
+        if PATTERNS["regex_pattern_for_year"].match(a.text) and PATTERNS[
+            "regex_pattern_for_link"
+        ].match(a_href):
             print(a.text, a_href)
             years_and_links.append((a.text, a_href))
-    return years_and_links  
+    return years_and_links
+
+
+def download_bankrupcy_file_from_table(driver, region, year):
+    """
+    EN
+    Downloads file from table on page.
+
+    RU
+    Скачивает файл с таблицы на странице.
+    """
+    try:
+        table = driver.find_element(By.TAG_NAME, "table")
+        p_tags = table.find_elements(By.TAG_NAME, "p")
+        for p in p_tags:
+            try:
+                a = p.find_element(By.TAG_NAME, "a")
+                if PATTERNS["bankrupcy"] in a.text:
+                    print(a.text, a.get_attribute("href"))
+                    a.click()
+            except NoSuchElementException:
+                pass
+    except NoSuchElementException:
+        print(f"Для {region} не найдена таблица с перечнем документов за {year}")
+        raise NoSuchElementException
