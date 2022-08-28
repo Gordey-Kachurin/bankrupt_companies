@@ -5,6 +5,7 @@ from utils.parsers import (
     get_bankrupt_years_and_links,
     download_bankrupcy_file_from_table,
     rename_and_move,
+    click_informational_message,
 )
 import shutil
 from selenium.webdriver.common.by import By
@@ -32,17 +33,11 @@ if __name__ == "__main__":
         bankrupt_years_and_links = get_bankrupt_years_and_links(driver)
         for year, link in bankrupt_years_and_links:
             driver.get(link)
-            search_text = PATTERNS["informational_messages"]
-            informational_message = driver.find_element(
-                By.XPATH, f"//*[ text() = '{search_text}' ]"
-            )
-
-            driver.get(informational_message.get_attribute("href"))
+            click_informational_message(driver)
             try:
                 download_bankrupcy_file_from_table(driver, region, year)
+                rename_and_move(ROOT_FOLDER, DOWNLOADS_FOLDER, region, year)
             except NoSuchElementException:
                 continue
-
-            rename_and_move(ROOT_FOLDER, DOWNLOADS_FOLDER, region, year)
 
     driver.quit()

@@ -87,3 +87,19 @@ def download_bankrupcy_file_from_table(driver, region, year):
     except NoSuchElementException:
         print(f"Для {region} не найдена таблица с перечнем документов за {year}")
         raise NoSuchElementException
+
+
+def click_informational_message(driver):
+    search_text = PATTERNS["informational_messages"]
+
+    try:
+        header = driver.find_element(By.XPATH, f'//header/h3/a[text()="{search_text}"]')
+        driver.get(header.get_attribute("href"))
+    except NoSuchElementException:
+        try:
+            informational_message_in_li = driver.find_element(
+                By.XPATH, f"//ul/li[text()='{search_text}']"
+            )
+            driver.get(informational_message_in_li.get_attribute("href"))
+        except NoSuchElementException:
+            print(f"Не найдена ссылка на {search_text}")
