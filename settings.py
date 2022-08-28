@@ -12,6 +12,8 @@ PATTERNS = {
  'rehabilitation_and_bankrupcy' :'Реабилитация и банкротство',
  'regex_pattern_for_year' : re.compile(r'2[0-9]{3} год'),
  'regex_pattern_for_link' : re.compile(r'.*depsection.*'),
+ 'informational_messages': 'Информационные сообщения',
+ 'bankrupcy': 'банкротстве' 
 }
 
 URLS = {

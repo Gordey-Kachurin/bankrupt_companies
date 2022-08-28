@@ -14,6 +14,8 @@ def set_profile(path_to_profile):
     RU
     Папка с профилем в: Справка -> Информация для рещения проблем -> Папка профиля
     """
+    # profile = webdriver.FirefoxProfile()
+    # profile.set_preference("browser.download.dir", r"C:\Users\admin\Documents\bankrupt_companies")
     fp = webdriver.FirefoxProfile(path_to_profile)
     return fp
 
