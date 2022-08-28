@@ -33,7 +33,12 @@ if __name__ == "__main__":
         bankrupt_years_and_links = get_bankrupt_years_and_links(driver)
         for year, link in bankrupt_years_and_links:
             driver.get(link)
-            click_informational_message(driver)
+            try:
+                search_text = PATTERNS["informational_messages"]
+                click_informational_message(driver, search_text)
+            except NoSuchElementException:
+                print(f"{region}, {year}: не найдена ссылка на {search_text}.")
+                continue
             try:
                 download_bankrupcy_file_from_table(driver, region, year)
                 rename_and_move(ROOT_FOLDER, DOWNLOADS_FOLDER, region, year)
