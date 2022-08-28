@@ -15,15 +15,20 @@ PATTERNS = {
     "regex_pattern_for_link": re.compile(r".*depsection.*"),
     "informational_messages": "Информационные сообщения",
     "bankrupcy": "банкротстве",
+    "rehabilitation": "реабилитации",
+    "litigation": "возбуждении",
 }
 
-DOWNLOADS_FOLDER = os.path.join(
+
+ROOT_FOLDER = os.path.join(
     os.path.join(os.path.join(os.environ["USERPROFILE"]), "Desktop"),
     "Rehabilitation and Bankrupcy",
 )  # TODO: Russian language gives weird errors in foldername
 
+DOWNLOADS_FOLDER = os.path.join(ROOT_FOLDER, "temp")
+
 URLS = {
-    "nursultan": "http://nursultan.kgd.gov.kz",
+    # "nursultan": "http://nursultan.kgd.gov.kz",
     "almaty": "http://almaty.kgd.gov.kz",
     "shymkent": "http://shymkent.kgd.gov.kz",
     "akm": "http://akm.kgd.gov.kz",

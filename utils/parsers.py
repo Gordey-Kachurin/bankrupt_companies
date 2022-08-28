@@ -1,6 +1,7 @@
 from settings import PATTERNS
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import InvalidSelectorException, NoSuchElementException
+import os, shutil
 
 
 def get_bankrupt_years_and_links(driver):
@@ -44,6 +45,20 @@ def get_bankrupt_years_and_links(driver):
     return years_and_links
 
 
+def rename_and_move(ROOT_FOLDER, DOWNLOADS_FOLDER, region, year):
+    # Rename and move
+    for file in os.listdir(DOWNLOADS_FOLDER):
+        new_name = region + " " + year + " "
+        renamed = new_name + file
+        os.rename(
+            os.path.join(DOWNLOADS_FOLDER, file),
+            os.path.join(DOWNLOADS_FOLDER, renamed),
+        )
+        shutil.move(
+            os.path.join(DOWNLOADS_FOLDER, renamed), os.path.join(ROOT_FOLDER, region)
+        )
+
+
 def download_bankrupcy_file_from_table(driver, region, year):
     """
     EN
@@ -54,13 +69,19 @@ def download_bankrupcy_file_from_table(driver, region, year):
     """
     try:
         table = driver.find_element(By.TAG_NAME, "table")
-        p_tags = table.find_elements(By.TAG_NAME, "p")
-        for p in p_tags:
+        tr_tags = table.find_elements(By.TAG_NAME, "tr")
+        for tr in tr_tags:
             try:
-                a = p.find_element(By.TAG_NAME, "a")
-                if PATTERNS["bankrupcy"] in a.text:
-                    print(a.text, a.get_attribute("href"))
-                    a.click()
+                a = tr.find_element(By.TAG_NAME, "a")
+                if PATTERNS["litigation"] in a.text:
+                    if PATTERNS["bankrupcy"] in a.text:
+                        print(a.text, a.get_attribute("href"))
+                        a.click()
+                        continue
+                    if PATTERNS["rehabilitation"] in a.text:
+                        print(a.text, a.get_attribute("href"))
+                        a.click()
+
             except NoSuchElementException:
                 pass
     except NoSuchElementException:
