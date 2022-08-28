@@ -1,14 +1,18 @@
+import imp
 from dotenv import load_dotenv
 import os
+import re
 
 load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
 
-# https://stackoverflow.com/questions/1681208/python-platform-independent-way-to-modify-path-environment-variable
-os.environ["PATH"] += os.pathsep + os.getcwd()
-PATH_TO_FIERFOX_PROFILE = r'C:\Users\admin\AppData\Roaming\Mozilla\Firefox\Profiles\ht3xghcx.default-release'
-PATTERNS = {
- 'ur_licam' : 'Юридическим лицам'
+FIREFOX_PROFILE_FOLDER = 'ht3xghcx.default-release'
+FIERFOX_PROFILE_PATH = fr'C:\Users\{os.getlogin()}\AppData\Roaming\Mozilla\Firefox\Profiles\{FIREFOX_PROFILE_FOLDER}'
 
+PATTERNS = {
+ 'ur_licam' : 'Юридическим лицам',
+ 'rehabilitation_and_bankrupcy' :'Реабилитация и банкротство',
+ 'regex_pattern_for_year' : re.compile(r'2[0-9]{3} год'),
+ 'regex_pattern_for_link' : re.compile(r'.*depsection.*'),
 }
 
 URLS = {
