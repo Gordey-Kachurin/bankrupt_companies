@@ -2,8 +2,22 @@ from settings import PATTERNS
 from selenium.webdriver.common.by import By
 
 def get_bankrupt_years_and_links(driver):
+    """
+    EN
+    When you use dropdown list as follows
+    Legal entities -> Rehabilitation and bankrupcy -> YEAR -> Informational messages
+    not all years have "Informational messages" as choise in dropdown.
+    But if you go to page of the year you can find link to "Informational messages"
+
+    RU
+    При использовании выпадающего списка:
+    Юридическим лицам – Реабилитация и банкротство – ГОД* – Информационные сообщения
+    не у всех годов есть в списке "Информационные сообщения"
+    
+    Но если перейти на страницу года, можно найти ссылку на "Информационные сообщения"
+    """
     # https://www.browserstack.com/guide/find-element-by-text-using-selenium
-    text = PATTERNS['ur_licam']
+    text = PATTERNS['legal_entities']
     ur_lica = driver.find_element(By.XPATH, f"//*[ text() = '{text}' ]") 
     ur_lica.click()
     text = PATTERNS['rehabilitation_and_bankrupcy']

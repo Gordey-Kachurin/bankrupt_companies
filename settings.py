@@ -8,7 +8,7 @@ FIREFOX_PROFILE_FOLDER = 'ht3xghcx.default-release'
 FIERFOX_PROFILE_PATH = fr'C:\Users\{os.getlogin()}\AppData\Roaming\Mozilla\Firefox\Profiles\{FIREFOX_PROFILE_FOLDER}'
 
 PATTERNS = {
- 'ur_licam' : 'Юридическим лицам',
+ 'legal_entities' : 'Юридическим лицам',
  'rehabilitation_and_bankrupcy' :'Реабилитация и банкротство',
  'regex_pattern_for_year' : re.compile(r'2[0-9]{3} год'),
  'regex_pattern_for_link' : re.compile(r'.*depsection.*'),
