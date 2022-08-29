@@ -94,6 +94,7 @@ def download_bankrupcy_file_from_table(driver, region, year):
 
 def click_informational_message(driver, search_text):
 
+    # TODO: Опечатки в искомом тексте: 'Информационные сообщение'
     try:
         a = driver.find_element(
             By.XPATH,
