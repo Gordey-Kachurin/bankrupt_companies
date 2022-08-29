@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import InvalidSelectorException, NoSuchElementException
 import os, shutil
 from selenium.webdriver.support.expected_conditions import visibility_of
+from .exceptions import DidNotFoundInformationalMessage
 
 
 def get_bankrupt_years_and_links(driver):
@@ -92,7 +93,7 @@ def download_bankrupcy_file_from_table(driver, region, year):
         raise NoSuchElementException
 
 
-def click_informational_message(driver, search_text):
+def click_informational_message(driver, regex_search_patterns: list):
 
     # TODO: Опечатки в искомом тексте: 'Информационные сообщение'
     try:
@@ -100,16 +101,22 @@ def click_informational_message(driver, search_text):
             By.XPATH,
             f"//div[@class='view-header']/div[@class='catmenu']/ul[@class='menu']/li[@class='first last leaf']/a",
         )
-        if search_text in a.text:
-            driver.get(a.get_attribute("href"))
-        else:
-            a_elements = driver.find_elements(
-                By.XPATH, f"//div[@class='view-content']//h3/a"
-            )
-            for a in a_elements:
-                if search_text in a.text:
+        for pattern in regex_search_patterns:
+            if pattern.match(a.text):
+                driver.get(a.get_attribute("href"))
+                return
+
+        a_elements = driver.find_elements(
+            By.XPATH, f"//div[@class='view-content']//h3/a"
+        )
+        for a in a_elements:
+            for pattern in regex_search_patterns:
+                if pattern.match(a.text):
                     driver.get(a.get_attribute("href"))
                     return
+        raise DidNotFoundInformationalMessage(
+            "view-header есть, view-content есть, искомого значения нет"
+        )
 
     except NoSuchElementException:
         try:
@@ -117,8 +124,14 @@ def click_informational_message(driver, search_text):
                 By.XPATH, f"//div[@class='view-content']//h3/a"
             )
             for a in a_elements:
-                if search_text in a.text:
-                    driver.get(a.get_attribute("href"))
-                    return
+                for pattern in regex_search_patterns:
+                    if pattern.match(a.text):
+                        driver.get(a.get_attribute("href"))
+                        return
+            raise DidNotFoundInformationalMessage(
+                "view-header нет, view-content есть, искомого значения нет"
+            )
         except NoSuchElementException:
-            raise NoSuchElementException
+            raise DidNotFoundInformationalMessage(
+                "view-header нет, view-content нет, искать негде"
+            )
