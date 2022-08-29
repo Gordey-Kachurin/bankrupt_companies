@@ -13,6 +13,8 @@ from selenium.common.exceptions import InvalidSelectorException, NoSuchElementEx
 import os
 
 if __name__ == "__main__":
+    if not os.path.exists(ROOT_FOLDER):
+        os.mkdir(ROOT_FOLDER)
     if not os.path.exists(DOWNLOADS_FOLDER):
         os.mkdir(DOWNLOADS_FOLDER)
 
@@ -34,15 +36,19 @@ if __name__ == "__main__":
         for year, link in bankrupt_years_and_links:
             driver.get(link)
             try:
-                search_text = PATTERNS["informational_messages"]
-                click_informational_message(driver, search_text)
+                click_informational_message(driver, PATTERNS["informational_messages"])
             except NoSuchElementException:
-                print(f"{region}, {year}: не найдена ссылка на {search_text}.")
+                print(
+                    f"{region}, {year}: не найдена ссылка на {PATTERNS['informational_messages']}."
+                )
                 continue
             try:
                 download_bankrupcy_file_from_table(driver, region, year)
-                rename_and_move(ROOT_FOLDER, DOWNLOADS_FOLDER, region, year)
             except NoSuchElementException:
+                print(
+                    f"Для {region} не найдена таблица с перечнем документов за {year}"
+                )
                 continue
+            rename_and_move(ROOT_FOLDER, DOWNLOADS_FOLDER, region, year)
 
     driver.quit()

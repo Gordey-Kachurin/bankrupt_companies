@@ -2,6 +2,7 @@ from settings import PATTERNS
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import InvalidSelectorException, NoSuchElementException
 import os, shutil
+from selenium.webdriver.support.expected_conditions import visibility_of
 
 
 def get_bankrupt_years_and_links(driver):
@@ -48,6 +49,9 @@ def get_bankrupt_years_and_links(driver):
 def rename_and_move(ROOT_FOLDER, DOWNLOADS_FOLDER, region, year):
     # Rename and move
     for file in os.listdir(DOWNLOADS_FOLDER):
+        # Wait until download is finished
+        while ".part" == file[:-5]:
+            continue
         new_name = region + " " + year + " "
         renamed = new_name + file
         os.rename(
@@ -85,20 +89,35 @@ def download_bankrupcy_file_from_table(driver, region, year):
             except NoSuchElementException:
                 pass
     except NoSuchElementException:
-        print(f"Для {region} не найдена таблица с перечнем документов за {year}")
         raise NoSuchElementException
 
 
 def click_informational_message(driver, search_text):
 
     try:
-        header = driver.find_element(By.XPATH, f'//header/h3/a[text()="{search_text}"]')
-        driver.get(header.get_attribute("href"))
+        a = driver.find_element(
+            By.XPATH,
+            f"//div[@class='view-header']/div[@class='catmenu']/ul[@class='menu']/li[@class='first last leaf']/a",
+        )
+        if search_text in a.text:
+            driver.get(a.get_attribute("href"))
+        else:
+            a_elements = driver.find_elements(
+                By.XPATH, f"//div[@class='view-content']//h3/a"
+            )
+            for a in a_elements:
+                if search_text in a.text:
+                    driver.get(a.get_attribute("href"))
+                    return
+
     except NoSuchElementException:
         try:
-            informational_message_in_li = driver.find_element(
-                By.XPATH, f"//ul/li[text()='{search_text}']"
+            a_elements = driver.find_elements(
+                By.XPATH, f"//div[@class='view-content']//h3/a"
             )
-            driver.get(informational_message_in_li.get_attribute("href"))
+            for a in a_elements:
+                if search_text in a.text:
+                    driver.get(a.get_attribute("href"))
+                    return
         except NoSuchElementException:
             raise NoSuchElementException
