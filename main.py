@@ -45,6 +45,10 @@ if __name__ == "__main__":
                     f"{region}, {year}: не найдена ссылка на Информационные сообщения. {e.message}."
                 )
                 continue
+            except NoSuchElementException:
+                print(f"{region}, {year}: не найдены элементы для поиска.")
+                continue
+
             try:
                 download_bankrupcy_file_from_table(driver, region, year)
             except NoSuchElementException:
