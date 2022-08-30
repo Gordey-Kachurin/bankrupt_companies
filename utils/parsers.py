@@ -72,6 +72,8 @@ def download_bankrupcy_file_from_table(driver):
     RU
     Скачивает файл Excel со страницы.
     """
+    # TODO: Karaganda no file after clicking
+    # TODO: Kostanai unexpected table structure in 2017
     try:
         table = driver.find_element(By.TAG_NAME, "table")
         tr_tags = table.find_elements(By.TAG_NAME, "tr")
@@ -86,6 +88,15 @@ def download_bankrupcy_file_from_table(driver):
                     if PATTERNS["rehabilitation"].match(a.text):
                         print(a.text, a.get_attribute("href"))
                         a.click()
+                        try:
+                            # Handle 'Not found' page if Excel doesn't exist. Not complete
+                            h1 = driver.find_element(By.XPATH, f"//body/h1")
+                            if h1.text == "Not Found":
+                                driver.back()
+                                driver.refresh()
+                                continue
+                        except NoSuchElementException:
+                            pass
 
             except NoSuchElementException:
                 pass
