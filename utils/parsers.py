@@ -117,7 +117,7 @@ def click_informational_message(driver, regex_search_patterns: list):
         get_informational_message(
             driver,
             regex_search_patterns,
-            f"//div[@class='view-header']/div[@class='catmenu']/ul[@class='menu']/li[@class='first last leaf']/a",
+            f"//div[@class='content']/div[contains(@class,'view-taxonomy-term')]/div[@class='view-header']/div[@class='catmenu']/ul[@class='menu']/li/a",
             "view-header",
         )
     except NoSuchElementException:
@@ -125,7 +125,7 @@ def click_informational_message(driver, regex_search_patterns: list):
             get_informational_message(
                 driver,
                 regex_search_patterns,
-                f"//div[@class='view-content']//h3/a",
+                f"//div[@class='content']/div[contains(@class,'view-taxonomy-term']/div[@class='view-content']//h3/a",
                 "view-content",
             )
         except NoSuchElementException:
