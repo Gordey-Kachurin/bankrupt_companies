@@ -2,8 +2,8 @@ from settings import PATTERNS
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import InvalidSelectorException, NoSuchElementException
 import os, shutil
-from selenium.webdriver.support.expected_conditions import visibility_of
-from .exceptions import DidNotFoundInformationalMessage
+
+from .exceptions import DidNotFindInformationalMessage
 
 
 def get_bankrupt_years_and_links(driver):
@@ -67,10 +67,10 @@ def rename_and_move(ROOT_FOLDER, DOWNLOADS_FOLDER, region, year):
 def download_bankrupcy_file_from_table(driver, region, year):
     """
     EN
-    Downloads file from table on page.
+    Downloads Excel file from page.
 
     RU
-    Скачивает файл с таблицы на странице.
+    Скачивает файл Excel со страницы.
     """
     try:
         table = driver.find_element(By.TAG_NAME, "table")
@@ -89,8 +89,23 @@ def download_bankrupcy_file_from_table(driver, region, year):
 
             except NoSuchElementException:
                 pass
+
     except NoSuchElementException:
-        raise NoSuchElementException
+        try:
+            a_elements = driver.find_elements(
+                By.XPATH, f"//div[@class='content']//div[@class='field-items']//p/a"
+            )
+            for a in a_elements:
+                if PATTERNS["litigation"] in a.text:
+                    if PATTERNS["bankrupcy"] in a.text:
+                        print(a.text, a.get_attribute("href"))
+                        a.click()
+                        continue
+                    if PATTERNS["rehabilitation"] in a.text:
+                        print(a.text, a.get_attribute("href"))
+                        a.click()
+        except NoSuchElementException:
+            raise NoSuchElementException
 
 
 def get_informational_message(
@@ -107,7 +122,7 @@ def get_informational_message(
                 return
     information_for_developer = f"{root_tag_name}: искомого значения нет"
     print(information_for_developer)
-    raise DidNotFoundInformationalMessage(information_for_developer)
+    raise DidNotFindInformationalMessage(information_for_developer)
 
 
 def click_informational_message(driver, regex_search_patterns: list):
@@ -125,22 +140,22 @@ def click_informational_message(driver, regex_search_patterns: list):
             get_informational_message(
                 driver,
                 regex_search_patterns,
-                f"//div[@class='content']/div[contains(@class,'view-taxonomy-term']/div[@class='view-content']//h3/a",
+                f"//div[@class='content']/div[contains(@class,'view-taxonomy-term')]/div[@class='view-content']//h3/a",
                 "view-content",
             )
         except NoSuchElementException:
             raise NoSuchElementException
-    except DidNotFoundInformationalMessage:
+    except DidNotFindInformationalMessage:
         try:
             get_informational_message(
                 driver,
                 regex_search_patterns,
-                f"//div[@class='view-content']//h3/a",
+                f"//div[@class='content']/div[contains(@class,'view-taxonomy-term')]/div[@class='view-content']//h3/a",
                 "view-content",
             )
         except NoSuchElementException:
             raise NoSuchElementException
-        except DidNotFoundInformationalMessage:
-            raise DidNotFoundInformationalMessage(
+        except DidNotFindInformationalMessage:
+            raise DidNotFindInformationalMessage(
                 "view-header, view-content: нет искомого значения"
             )

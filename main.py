@@ -11,7 +11,7 @@ import shutil
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import InvalidSelectorException, NoSuchElementException
 import os
-from utils.exceptions import DidNotFoundInformationalMessage
+from utils.exceptions import DidNotFindInformationalMessage
 
 if __name__ == "__main__":
     if not os.path.exists(ROOT_FOLDER):
@@ -40,7 +40,7 @@ if __name__ == "__main__":
                 click_informational_message(
                     driver, PATTERNS["regex_patterns_for_informational_messages"]
                 )
-            except DidNotFoundInformationalMessage as e:
+            except DidNotFindInformationalMessage as e:
                 print(
                     f"{region}, {year}: не найдена ссылка на Информационные сообщения. {e.message}."
                 )
