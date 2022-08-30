@@ -64,7 +64,7 @@ def rename_and_move(ROOT_FOLDER, DOWNLOADS_FOLDER, region, year):
         )
 
 
-def download_bankrupcy_file_from_table(driver, region, year):
+def download_bankrupcy_file_from_table(driver):
     """
     EN
     Downloads Excel file from page.
@@ -78,12 +78,12 @@ def download_bankrupcy_file_from_table(driver, region, year):
         for tr in tr_tags:
             try:
                 a = tr.find_element(By.TAG_NAME, "a")
-                if PATTERNS["litigation"] in a.text:
+                if PATTERNS["litigation"].match(a.text):
                     if PATTERNS["bankrupcy"] in a.text:
                         print(a.text, a.get_attribute("href"))
                         a.click()
                         continue
-                    if PATTERNS["rehabilitation"] in a.text:
+                    if PATTERNS["rehabilitation"].match(a.text):
                         print(a.text, a.get_attribute("href"))
                         a.click()
 
@@ -96,12 +96,12 @@ def download_bankrupcy_file_from_table(driver, region, year):
                 By.XPATH, f"//div[@class='content']//div[@class='field-items']//p/a"
             )
             for a in a_elements:
-                if PATTERNS["litigation"] in a.text:
+                if PATTERNS["litigation"].match(a.text):
                     if PATTERNS["bankrupcy"] in a.text:
                         print(a.text, a.get_attribute("href"))
                         a.click()
                         continue
-                    if PATTERNS["rehabilitation"] in a.text:
+                    if PATTERNS["rehabilitation"].match(a.text):
                         print(a.text, a.get_attribute("href"))
                         a.click()
         except NoSuchElementException:
@@ -127,7 +127,7 @@ def get_informational_message(
 
 def click_informational_message(driver, regex_search_patterns: list):
 
-    # TODO: Опечатки в искомом тексте: 'Информационные сообщение'
+    # TODO: Atyrau has multiple Informational messages links in 2021
     try:
         get_informational_message(
             driver,

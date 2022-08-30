@@ -14,11 +14,12 @@ PATTERNS = {
     "regex_pattern_for_year": re.compile(r"2[0-9]{3} год"),
     "regex_pattern_for_link": re.compile(r".*depsection.*"),
     "regex_patterns_for_informational_messages": [
-        re.compile(r"Информационные сообщения$")
+        re.compile(r"Информационные сообщения$"),
+        re.compile(r"Информационные сообщение 2019$"),
     ],
     "bankrupcy": "банкротстве",
-    "rehabilitation": "реабилитации",
-    "litigation": "возбуждении",
+    "rehabilitation": re.compile(r".*реа(били|либи)тации.*"),
+    "litigation": re.compile(r".*возбуждени[ие].*"),
 }
 
 
@@ -33,10 +34,10 @@ URLS = {
     # "nursultan": "http://nursultan.kgd.gov.kz",
     # "almaty": "http://almaty.kgd.gov.kz",
     # "shymkent": "http://shymkent.kgd.gov.kz",
-    "akm": "http://akm.kgd.gov.kz",
+    # "akm": "http://akm.kgd.gov.kz",
     # "akb": "http://akb.kgd.gov.kz",
     # "alm": "http://alm.kgd.gov.kz",
-    # "atr": "http://atr.kgd.gov.kz",
+    "atr": "http://atr.kgd.gov.kz",
     # "vko": "http://vko.kgd.gov.kz",
     # "zhmb": "http://zhmb.kgd.gov.kz",
     # "zko": "http://zko.kgd.gov.kz",

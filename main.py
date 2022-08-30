@@ -50,7 +50,7 @@ if __name__ == "__main__":
                 continue
 
             try:
-                download_bankrupcy_file_from_table(driver, region, year)
+                download_bankrupcy_file_from_table(driver)
             except NoSuchElementException:
                 print(
                     f"Для {region} не найдена таблица с перечнем документов за {year}"
