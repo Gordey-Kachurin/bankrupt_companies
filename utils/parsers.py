@@ -1,6 +1,12 @@
 from settings import PATTERNS
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import InvalidSelectorException, NoSuchElementException
+from selenium.common.exceptions import (
+    InvalidSelectorException,
+    NoSuchElementException,
+    StaleElementReferenceException,
+)
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
 import os, shutil
 
 from .exceptions import DidNotFindInformationalMessage
@@ -64,15 +70,24 @@ def rename_and_move(ROOT_FOLDER, DOWNLOADS_FOLDER, region, year):
         )
 
 
+def close_tabs(driver):
+    while len(driver.window_handles) > 1:
+        driver.switch_to.window(driver.window_handles[1])
+        driver.close()
+    # Prevents selenium.common.exceptions.NoSuchWindowException after closing tabs
+    driver.switch_to.window(driver.window_handles[0])
+
+
 def download_bankrupcy_file_from_table(driver):
     """
     EN
     Downloads Excel file from page.
+    ActionChains handles both cases when file is there or not found
 
     RU
     Скачивает файл Excel со страницы.
+    ActionChains обрабатывает оба случая, когда файл есть или не найден.
     """
-    # TODO: Karaganda no file after clicking
     # TODO: Kostanai unexpected table structure in 2017
     try:
         table = driver.find_element(By.TAG_NAME, "table")
@@ -83,23 +98,18 @@ def download_bankrupcy_file_from_table(driver):
                 if PATTERNS["litigation"].match(a.text):
                     if PATTERNS["bankrupcy"] in a.text:
                         print(a.text, a.get_attribute("href"))
-                        a.click()
+                        ActionChains(driver).key_down(Keys.CONTROL).click(a).key_up(
+                            Keys.CONTROL
+                        ).perform()
                         continue
                     if PATTERNS["rehabilitation"].match(a.text):
                         print(a.text, a.get_attribute("href"))
-                        a.click()
-                        try:
-                            # Handle 'Not found' page if Excel doesn't exist. Not complete
-                            h1 = driver.find_element(By.XPATH, f"//body/h1")
-                            if h1.text == "Not Found":
-                                driver.back()
-                                driver.refresh()
-                                continue
-                        except NoSuchElementException:
-                            pass
-
+                        ActionChains(driver).key_down(Keys.CONTROL).click(a).key_up(
+                            Keys.CONTROL
+                        ).perform()
             except NoSuchElementException:
                 pass
+        close_tabs(driver)
 
     except NoSuchElementException:
         try:
@@ -110,11 +120,16 @@ def download_bankrupcy_file_from_table(driver):
                 if PATTERNS["litigation"].match(a.text):
                     if PATTERNS["bankrupcy"] in a.text:
                         print(a.text, a.get_attribute("href"))
-                        a.click()
+                        ActionChains(driver).key_down(Keys.CONTROL).click(a).key_up(
+                            Keys.CONTROL
+                        ).perform()
                         continue
                     if PATTERNS["rehabilitation"].match(a.text):
                         print(a.text, a.get_attribute("href"))
-                        a.click()
+                        ActionChains(driver).key_down(Keys.CONTROL).click(a).key_up(
+                            Keys.CONTROL
+                        ).perform()
+            close_tabs(driver)
         except NoSuchElementException:
             raise NoSuchElementException
 
