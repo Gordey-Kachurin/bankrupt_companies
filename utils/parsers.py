@@ -55,11 +55,11 @@ def get_bankrupt_years_and_links(driver):
 
 
 def rename_and_move(ROOT_FOLDER, DOWNLOADS_FOLDER, region, year):
-    # Wait until download is finished
-    for file in os.listdir(DOWNLOADS_FOLDER):
-        while ".part" == file[-5:]:
-            print(file[-5:])
-            continue
+    # # Wait until download is finished
+    # for file in os.listdir(DOWNLOADS_FOLDER):
+    #     while ".part" == file[-5:]:
+    #         print(file[-5:])
+    #         continue
     # Rename and move
     for file in os.listdir(DOWNLOADS_FOLDER):
         new_name = region + " " + year + " "
@@ -74,6 +74,11 @@ def rename_and_move(ROOT_FOLDER, DOWNLOADS_FOLDER, region, year):
 
 
 def close_tabs(driver):
+    # Wait until download is finished
+    for file in os.listdir(DOWNLOADS_FOLDER):
+        while ".part" == file[-5:]:
+            print(file[-5:])
+            continue
     while len(driver.window_handles) > 1:
         driver.switch_to.window(driver.window_handles[1])
         try:
