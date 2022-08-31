@@ -1,9 +1,10 @@
-from settings import PATTERNS
+from settings import PATTERNS, DOWNLOADS_FOLDER
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import (
     InvalidSelectorException,
     NoSuchElementException,
     StaleElementReferenceException,
+    NoSuchWindowException,
 )
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
@@ -54,11 +55,13 @@ def get_bankrupt_years_and_links(driver):
 
 
 def rename_and_move(ROOT_FOLDER, DOWNLOADS_FOLDER, region, year):
+    # Wait until download is finished
+    for file in os.listdir(DOWNLOADS_FOLDER):
+        while ".part" == file[-5:]:
+            print(file[-5:])
+            continue
     # Rename and move
     for file in os.listdir(DOWNLOADS_FOLDER):
-        # Wait until download is finished
-        while ".part" == file[:-5]:
-            continue
         new_name = region + " " + year + " "
         renamed = new_name + file
         os.rename(
@@ -73,7 +76,10 @@ def rename_and_move(ROOT_FOLDER, DOWNLOADS_FOLDER, region, year):
 def close_tabs(driver):
     while len(driver.window_handles) > 1:
         driver.switch_to.window(driver.window_handles[1])
-        driver.close()
+        try:
+            driver.close()
+        except NoSuchWindowException:
+            pass
     # Prevents selenium.common.exceptions.NoSuchWindowException after closing tabs
     driver.switch_to.window(driver.window_handles[0])
 

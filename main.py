@@ -50,6 +50,7 @@ if __name__ == "__main__":
                 continue
 
             try:
+                print(region, year)
                 download_bankrupcy_file_from_table(driver)
             except NoSuchElementException:
                 print(
