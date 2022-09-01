@@ -1,16 +1,12 @@
 from settings import PATTERNS, DOWNLOADS_FOLDER, XPATHS_TO_SEARCH_A_ELEMENTS
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import (
-    InvalidSelectorException,
     NoSuchElementException,
-    StaleElementReferenceException,
-    NoSuchWindowException,
-    MoveTargetOutOfBoundsException,
 )
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.keys import Keys
-import os, shutil
 
+import os, shutil
+import requests
+from requests.exceptions import Timeout
 from .exceptions import DidNotFindInformationalMessage
 
 
@@ -57,7 +53,7 @@ def get_bankrupt_years_and_links(driver):
 
 def rename_and_move(ROOT_FOLDER, DOWNLOADS_FOLDER, region, year):
     # # Wait until download is finished
-    wait_for_download()
+    # wait_for_download() deprecated. Used with
     # Rename and move
     for file in os.listdir(DOWNLOADS_FOLDER):
         new_name = region + " " + year + " "
@@ -71,71 +67,32 @@ def rename_and_move(ROOT_FOLDER, DOWNLOADS_FOLDER, region, year):
         )
 
 
-def wait_for_download():
-    # Wait until download is finished
-    if os.listdir(DOWNLOADS_FOLDER) != []:
-        new_files = os.listdir(DOWNLOADS_FOLDER)
-        while ".part" in "".join(new_files):
-            print("<<< ", new_files)
-            new_files = os.listdir(DOWNLOADS_FOLDER)
+def download_file(link_to_file):
+    r = requests.get(link_to_file, allow_redirects=True, timeout=5)
+    head_tail = os.path.split(link_to_file)
+    with open(os.path.join(DOWNLOADS_FOLDER, head_tail[1]), "wb") as fp:
+        fp.write(r.content)
 
 
-def close_tabs(driver):
-    wait_for_download()
-
-    while len(driver.window_handles) > 1:
-        try:
-            driver.switch_to.window(driver.window_handles[1])
-        except IndexError:
-            break
-        try:
-            driver.close()
-        except NoSuchWindowException:
-            pass
-    # Prevents selenium.common.exceptions.NoSuchWindowException after closing tabs
-    driver.switch_to.window(driver.window_handles[0])
-
-
-def scroll_element_to_center(driver, a):
-    # https://www.codegrepper.com/code-examples/python/scroll+to+element+python+selenium
-    desired_y = (a.size["height"] / 2) + a.location["y"]
-    current_y = (
-        driver.execute_script("return window.innerHeight") / 2
-    ) + driver.execute_script("return window.pageYOffset")
-    scroll_y_by = desired_y - current_y
-    driver.execute_script("window.scrollBy(0, arguments[0]);", scroll_y_by)
-
-
-def click_rehabilitation_and_bankrupcy_elements(driver, a_elements):
+def click_rehabilitation_and_bankrupcy_elements(a_elements):
 
     for a in a_elements:
         if PATTERNS["litigation"].match(a.text):
             if PATTERNS["bankrupcy"] in a.text:
                 print(a.text, a.get_attribute("href"))
                 try:
-                    ActionChains(driver).key_down(Keys.CONTROL).click(a).key_up(
-                        Keys.CONTROL
-                    ).perform()
-                except MoveTargetOutOfBoundsException:
-                    # driver.execute_script("return arguments[0].scrollIntoView(true);", a)
-                    scroll_element_to_center(driver, a)
-                    ActionChains(driver).key_down(Keys.CONTROL).click(a).key_up(
-                        Keys.CONTROL
-                    ).perform()
+                    download_file(a.get_attribute("href"))
+                except Timeout:
+                    print(f'Не дождался файла по ссылке {a.get_attribute("href")}')
+                    continue
                 continue
             if PATTERNS["rehabilitation"].match(a.text):
                 print(a.text, a.get_attribute("href"))
                 try:
-                    ActionChains(driver).key_down(Keys.CONTROL).click(a).key_up(
-                        Keys.CONTROL
-                    ).perform()
-                except MoveTargetOutOfBoundsException:
-                    # driver.execute_script("return arguments[0].scrollIntoView(true);", a)
-                    scroll_element_to_center(driver, a)
-                    ActionChains(driver).key_down(Keys.CONTROL).click(a).key_up(
-                        Keys.CONTROL
-                    ).perform()
-    close_tabs(driver)
+                    download_file(a.get_attribute("href"))
+                except Timeout:
+                    print(f'Не дождался файла по ссылке {a.get_attribute("href")}')
+                    continue
 
 
 def download_bankrupcy_file_from_table(driver):
@@ -156,7 +113,7 @@ def download_bankrupcy_file_from_table(driver):
         try:
             a_elements = driver.find_elements(By.XPATH, xpath)
             if a_elements != []:
-                click_rehabilitation_and_bankrupcy_elements(driver, a_elements)
+                click_rehabilitation_and_bankrupcy_elements(a_elements)
                 break
             else:
                 continue
@@ -187,7 +144,7 @@ def get_informational_message(
 
 
 def click_informational_message(driver, regex_search_patterns: list):
-    # TODO: selenium.common.exceptions.MoveTargetOutOfBoundsException
+
     # TODO: Atyrau has multiple Informational messages links in 2021
     try:
         get_informational_message(
