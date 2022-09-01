@@ -95,6 +95,24 @@ def close_tabs(driver):
     driver.switch_to.window(driver.window_handles[0])
 
 
+def click_rehabilitation_and_bankrupcy_elements(driver, xpath):
+    a_elements = driver.find_elements(By.XPATH, xpath)
+    for a in a_elements:
+        if PATTERNS["litigation"].match(a.text):
+            if PATTERNS["bankrupcy"] in a.text:
+                print(a.text, a.get_attribute("href"))
+                ActionChains(driver).key_down(Keys.CONTROL).click(a).key_up(
+                    Keys.CONTROL
+                ).perform()
+                continue
+            if PATTERNS["rehabilitation"].match(a.text):
+                print(a.text, a.get_attribute("href"))
+                ActionChains(driver).key_down(Keys.CONTROL).click(a).key_up(
+                    Keys.CONTROL
+                ).perform()
+    close_tabs(driver)
+
+
 def download_bankrupcy_file_from_table(driver):
     """
     EN
@@ -107,48 +125,20 @@ def download_bankrupcy_file_from_table(driver):
     """
     # TODO: Kostanai unexpected table structure in 2017
     try:
-        table = driver.find_element(By.TAG_NAME, "table")
-        tr_tags = table.find_elements(By.TAG_NAME, "tr")
-        for tr in tr_tags:
-            try:
-                a = tr.find_element(By.TAG_NAME, "a")
-                if PATTERNS["litigation"].match(a.text):
-                    if PATTERNS["bankrupcy"] in a.text:
-                        print(a.text, a.get_attribute("href"))
-                        ActionChains(driver).key_down(Keys.CONTROL).click(a).key_up(
-                            Keys.CONTROL
-                        ).perform()
-                        continue
-                    if PATTERNS["rehabilitation"].match(a.text):
-                        print(a.text, a.get_attribute("href"))
-                        ActionChains(driver).key_down(Keys.CONTROL).click(a).key_up(
-                            Keys.CONTROL
-                        ).perform()
-            except NoSuchElementException:
-                pass
-        close_tabs(driver)
-
+        click_rehabilitation_and_bankrupcy_elements(driver, f"//table/tbody/tr//a")
     except NoSuchElementException:
         try:
-            a_elements = driver.find_elements(
-                By.XPATH, f"//div[@class='content']//div[@class='field-items']//p/a"
+            click_rehabilitation_and_bankrupcy_elements(
+                driver,
+                f"//div[@class='content']//div[@class='field-type-text-with-summary']//ul/li/a",
             )
-            for a in a_elements:
-                if PATTERNS["litigation"].match(a.text):
-                    if PATTERNS["bankrupcy"] in a.text:
-                        print(a.text, a.get_attribute("href"))
-                        ActionChains(driver).key_down(Keys.CONTROL).click(a).key_up(
-                            Keys.CONTROL
-                        ).perform()
-                        continue
-                    if PATTERNS["rehabilitation"].match(a.text):
-                        print(a.text, a.get_attribute("href"))
-                        ActionChains(driver).key_down(Keys.CONTROL).click(a).key_up(
-                            Keys.CONTROL
-                        ).perform()
-            close_tabs(driver)
         except NoSuchElementException:
-            raise NoSuchElementException
+            try:
+                click_rehabilitation_and_bankrupcy_elements(
+                    driver, f"//div[@class='content']//div[@class='field-items']//p/a"
+                )
+            except NoSuchElementException:
+                raise NoSuchElementException
 
 
 def get_informational_message(
