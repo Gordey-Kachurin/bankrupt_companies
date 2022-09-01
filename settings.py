@@ -57,7 +57,7 @@ URLS = {
     "akm": "http://akm.kgd.gov.kz",
     "akb": "http://akb.kgd.gov.kz",
     "alm": "http://alm.kgd.gov.kz",
-    "atr": "http://atr.kgd.gov.kz",
+    # "atr": "http://atr.kgd.gov.kz",
     "vko": "http://vko.kgd.gov.kz",
     "zhmb": "http://zhmb.kgd.gov.kz",
     "zko": "http://zko.kgd.gov.kz",
