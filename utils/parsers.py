@@ -126,54 +126,20 @@ def download_bankrupcy_file_from_table(driver):
         raise NoSuchElementException
 
 
-def get_informational_message(
-    driver, regex_search_patterns: list, xpath, root_tag_name
-):
+def get_informational_messages(driver, xpath, key):
     a_elements = driver.find_elements(
         By.XPATH,
         xpath,
     )
+    hrefs = []
     for a in a_elements:
-        for pattern in regex_search_patterns:
+        for pattern in PATTERNS["regex_patterns_for_informational_messages"]:
             if pattern.match(a.text):
-                driver.get(a.get_attribute("href"))
-                return
-    information_for_developer = f"{root_tag_name}: искомого значения нет"
-    print(information_for_developer)
-    raise DidNotFindInformationalMessage(information_for_developer)
-
-
-def click_informational_message(driver, regex_search_patterns: list):
-
-    # TODO: Atyrau has multiple Informational messages links in 2021
-    try:
-        get_informational_message(
-            driver,
-            regex_search_patterns,
-            f"//div[@class='content']/div[contains(@class,'view-taxonomy-term')]/div[@class='view-header']/div[@class='catmenu']/ul[@class='menu']/li/a",
-            "view-header",
-        )
-    except NoSuchElementException:
-        try:
-            get_informational_message(
-                driver,
-                regex_search_patterns,
-                f"//div[@class='content']/div[contains(@class,'view-taxonomy-term')]/div[@class='view-content']//h3/a",
-                "view-content",
-            )
-        except NoSuchElementException:
-            raise NoSuchElementException
-    except DidNotFindInformationalMessage:
-        try:
-            get_informational_message(
-                driver,
-                regex_search_patterns,
-                f"//div[@class='content']/div[contains(@class,'view-taxonomy-term')]/div[@class='view-content']//h3/a",
-                "view-content",
-            )
-        except NoSuchElementException:
-            raise NoSuchElementException
-        except DidNotFindInformationalMessage:
-            raise DidNotFindInformationalMessage(
-                "view-header, view-content: нет искомого значения"
-            )
+                hrefs.append(a.get_attribute("href"))
+                # driver.get(a.get_attribute("href"))
+                # return
+    if hrefs == []:
+        information_for_developer = f"Поиск в: {key}"
+        print(information_for_developer)
+        raise DidNotFindInformationalMessage(information_for_developer)
+    return hrefs
