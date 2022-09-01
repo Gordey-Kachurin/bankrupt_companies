@@ -1,4 +1,4 @@
-from settings import PATTERNS, DOWNLOADS_FOLDER
+from settings import PATTERNS, DOWNLOADS_FOLDER, XPATHS_TO_SEARCH_A_ELEMENTS
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import (
     InvalidSelectorException,
@@ -95,8 +95,8 @@ def close_tabs(driver):
     driver.switch_to.window(driver.window_handles[0])
 
 
-def click_rehabilitation_and_bankrupcy_elements(driver, xpath):
-    a_elements = driver.find_elements(By.XPATH, xpath)
+def click_rehabilitation_and_bankrupcy_elements(driver, a_elements):
+
     for a in a_elements:
         if PATTERNS["litigation"].match(a.text):
             if PATTERNS["bankrupcy"] in a.text:
@@ -124,21 +124,24 @@ def download_bankrupcy_file_from_table(driver):
     ActionChains обрабатывает оба случая, когда файл есть или не найден.
     """
     # TODO: Kostanai unexpected table structure in 2017
-    try:
-        click_rehabilitation_and_bankrupcy_elements(driver, f"//table/tbody/tr//a")
-    except NoSuchElementException:
+
+    counter = len(XPATHS_TO_SEARCH_A_ELEMENTS)
+    for xpath in XPATHS_TO_SEARCH_A_ELEMENTS:
+        counter -= 1
         try:
-            click_rehabilitation_and_bankrupcy_elements(
-                driver,
-                f"//div[@class='content']//div[@class='field-type-text-with-summary']//ul/li/a",
-            )
+            a_elements = driver.find_elements(By.XPATH, xpath)
+            if a_elements != []:
+                click_rehabilitation_and_bankrupcy_elements(driver, a_elements)
+                break
+            else:
+                continue
         except NoSuchElementException:
-            try:
-                click_rehabilitation_and_bankrupcy_elements(
-                    driver, f"//div[@class='content']//div[@class='field-items']//p/a"
-                )
-            except NoSuchElementException:
-                raise NoSuchElementException
+            print(
+                f"Ссылки не найдены. Способ поиска: {xpath}. Осталось попыток: {counter}"
+            )
+            continue
+    if counter <= 0:
+        raise NoSuchElementException
 
 
 def get_informational_message(
