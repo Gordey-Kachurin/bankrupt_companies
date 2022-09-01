@@ -4,19 +4,25 @@ import re
 import platform
 
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
- 
-if platform.system() == 'Windows':
-    FIREFOX_PROFILE_FOLDER = "ht3xghcx.default-release"
-    FIERFOX_PROFILE_PATH = os.path.join(os.getenv("APPDATA"),'Roaming','Mozilla', 'Firefox', 'Profiles', FIREFOX_PROFILE_FOLDER)  
-    ROOT_FOLDER = os.path.join(
-    os.path.join(os.path.join(os.environ["USERPROFILE"]), "Desktop"),
-    "Rehabilitation and Bankrupcy",
-)  # TODO: Russian language gives weird errors in foldername
 
-if platform.system() == 'Linux':
-    FIREFOX_PROFILE_FOLDER = '9h9tufst.default-release'
-    FIERFOX_PROFILE_PATH =  f"/home/{os.getlogin()}/.mozilla/firefox/{FIREFOX_PROFILE_FOLDER}"
-    ROOT_FOLDER = os.path.join(os.environ["HOME"], "Desktop", "Rehabilitation and Bankrupcy")
+if platform.system() == "Windows":
+    FIREFOX_PROFILE_FOLDER = "ht3xghcx.default-release"
+    FIERFOX_PROFILE_PATH = os.path.join(
+        os.getenv("APPDATA"), "Mozilla", "Firefox", "Profiles", FIREFOX_PROFILE_FOLDER
+    )
+    ROOT_FOLDER = os.path.join(
+        os.path.join(os.path.join(os.environ["USERPROFILE"]), "Desktop"),
+        "Rehabilitation and Bankrupcy",
+    )  # TODO: Russian language gives weird errors in foldername
+
+if platform.system() == "Linux":
+    FIREFOX_PROFILE_FOLDER = "9h9tufst.default-release"
+    FIERFOX_PROFILE_PATH = (
+        f"/home/{os.getlogin()}/.mozilla/firefox/{FIREFOX_PROFILE_FOLDER}"
+    )
+    ROOT_FOLDER = os.path.join(
+        os.environ["HOME"], "Desktop", "Rehabilitation and Bankrupcy"
+    )
 
 DOWNLOADS_FOLDER = os.path.join(ROOT_FOLDER, "temp")
 
@@ -35,8 +41,6 @@ PATTERNS = {
     "rehabilitation": re.compile(r".*реа(били|либи)тации.*"),
     "litigation": re.compile(r".*возбуждени[ие].*"),
 }
-
-
 
 
 URLS = {
