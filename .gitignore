@@ -4,3 +4,4 @@ __pycache__
 .envs/*
 .env
 geckodriver.log
+jupiter_drafts

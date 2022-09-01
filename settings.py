@@ -36,6 +36,7 @@ PATTERNS = {
         re.compile(r"Информационн[ыо]е сообщени[ея]$"),
         re.compile(r"Информационные сообщение 2019$"),  # Atyrau
         re.compile(r"1-7 Информационные сообщения$"),  # Karaganda since 2019
+        re.compile(r"2021 Информационные сообщения$"),  # Mangystau
     ],
     "bankrupcy": "банкротстве",
     "rehabilitation": re.compile(r".*реа(били|либи)тации.*"),

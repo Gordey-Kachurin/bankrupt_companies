@@ -75,23 +75,16 @@ def rename_and_move(ROOT_FOLDER, DOWNLOADS_FOLDER, region, year):
 
 def wait_for_download():
     # Wait until download is finished
-    # TODO: indefinite while looping on mng
-    # TODO: test solution below
-    if os.listdir(DOWNLOADS_FOLDER) !=[]:
-        # Initialize to the first file
-        new_file = os.listdir(DOWNLOADS_FOLDER)[0]
-        for index, _ in enumerate(os.listdir(DOWNLOADS_FOLDER)):
-            while True:
-                if ".part" == new_file[-5:]:
-                    print(new_file)
-                    new_file = os.listdir(DOWNLOADS_FOLDER)[index]
-                else:
-                    break
+    if os.listdir(DOWNLOADS_FOLDER) != []:
+        new_files = os.listdir(DOWNLOADS_FOLDER)
+        while ".part" in "".join(new_files):
+            print("<<< ", new_files)
+            new_files = os.listdir(DOWNLOADS_FOLDER)
 
 
 def close_tabs(driver):
     wait_for_download()
-    
+
     while len(driver.window_handles) > 1:
         driver.switch_to.window(driver.window_handles[1])
         try:
