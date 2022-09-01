@@ -5,6 +5,7 @@ from selenium.common.exceptions import (
     NoSuchElementException,
     StaleElementReferenceException,
     NoSuchWindowException,
+    MoveTargetOutOfBoundsException,
 )
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
@@ -95,21 +96,45 @@ def close_tabs(driver):
     driver.switch_to.window(driver.window_handles[0])
 
 
+def scroll_element_to_center(driver, a):
+    # https://www.codegrepper.com/code-examples/python/scroll+to+element+python+selenium
+    desired_y = (a.size["height"] / 2) + a.location["y"]
+    current_y = (
+        driver.execute_script("return window.innerHeight") / 2
+    ) + driver.execute_script("return window.pageYOffset")
+    scroll_y_by = desired_y - current_y
+    driver.execute_script("window.scrollBy(0, arguments[0]);", scroll_y_by)
+
+
 def click_rehabilitation_and_bankrupcy_elements(driver, a_elements):
 
     for a in a_elements:
         if PATTERNS["litigation"].match(a.text):
             if PATTERNS["bankrupcy"] in a.text:
                 print(a.text, a.get_attribute("href"))
-                ActionChains(driver).key_down(Keys.CONTROL).click(a).key_up(
-                    Keys.CONTROL
-                ).perform()
+                try:
+                    ActionChains(driver).key_down(Keys.CONTROL).click(a).key_up(
+                        Keys.CONTROL
+                    ).perform()
+                except MoveTargetOutOfBoundsException:
+                    # driver.execute_script("return arguments[0].scrollIntoView(true);", a)
+                    scroll_element_to_center(driver, a)
+                    ActionChains(driver).key_down(Keys.CONTROL).click(a).key_up(
+                        Keys.CONTROL
+                    ).perform()
                 continue
             if PATTERNS["rehabilitation"].match(a.text):
                 print(a.text, a.get_attribute("href"))
-                ActionChains(driver).key_down(Keys.CONTROL).click(a).key_up(
-                    Keys.CONTROL
-                ).perform()
+                try:
+                    ActionChains(driver).key_down(Keys.CONTROL).click(a).key_up(
+                        Keys.CONTROL
+                    ).perform()
+                except MoveTargetOutOfBoundsException:
+                    # driver.execute_script("return arguments[0].scrollIntoView(true);", a)
+                    scroll_element_to_center(driver, a)
+                    ActionChains(driver).key_down(Keys.CONTROL).click(a).key_up(
+                        Keys.CONTROL
+                    ).perform()
     close_tabs(driver)
 
 
@@ -162,7 +187,7 @@ def get_informational_message(
 
 
 def click_informational_message(driver, regex_search_patterns: list):
-
+    # TODO: selenium.common.exceptions.MoveTargetOutOfBoundsException
     # TODO: Atyrau has multiple Informational messages links in 2021
     try:
         get_informational_message(
