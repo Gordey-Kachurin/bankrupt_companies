@@ -44,6 +44,12 @@ PATTERNS = {
     "litigation": re.compile(r".*возбуждени[ие].*"),
 }
 
+REGEX_PATTERNS_FOR_XLSX_HEADERS = {
+    "bin": re.compile(r"БИН"),
+    "registration": re.compile(r"регистрац"),
+    "dolzhnik": re.compile(r"Наименование /Ф.И.О.должника"),
+}
+
 XPATHS_TO_SEARCH_A_ELEMENTS = [
     f"//table/tbody/tr//a",
     f"//div[@class='content']//div[@class='field-items']//ul/li/a",
