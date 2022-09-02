@@ -25,7 +25,7 @@ if platform.system() == "Linux":
     )
 
 DOWNLOADS_FOLDER = os.path.join(ROOT_FOLDER, "temp")
-
+COPIES_FOLDER = os.path.join(ROOT_FOLDER, "copies")
 
 PATTERNS = {
     "legal_entities": "Юридическим лицам",
