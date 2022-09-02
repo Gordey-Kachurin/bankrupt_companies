@@ -47,7 +47,7 @@ def create_directories_for_copies():
             os.mkdir(os.path.join(COPIES_FOLDER, region))
 
 def get_non_excel_files(downloads):
-    non_xlsx = {}
+    non_excel = {}
     
     for region in downloads:
         files = []
@@ -58,12 +58,12 @@ def get_non_excel_files(downloads):
                 continue
             else:
                 files.append(f)
-        non_xlsx[region] = files
-    return non_xlsx
+        non_excel[region] = files
+    return non_excel
 
 downloads = get_downloaded_filenames()
 create_directories_for_copies()
-non_xlsx = get_non_excel_files(downloads)
+non_excel = get_non_excel_files(downloads)
 
 for region in downloads:
     print(downloads[region])
