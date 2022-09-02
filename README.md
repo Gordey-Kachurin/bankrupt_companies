@@ -1,5 +1,5 @@
 # Set up
-1. Create "Personal access token" on GitHub:
+1. [Create "Personal access token" on GitHub](https://docs.github.com/en/enterprise-server@3.4/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token):
 Settings -> Developer settings -> Personal access tokens.
 2. Create .env file in the same folder as main.py
 3. Write to .env: [GH_TOKEN](https://github.com/SergeyPirogov/webdriver_manager#configuration)=your token
@@ -11,4 +11,3 @@ Profile folder location: Help -> Troubleshooting Information -> Profile folder
 2. [Firefox configs](http://kb.mozillazine.org/About:config_entries)
 3. [Firefox config editor](https://support.mozilla.org/en-US/kb/about-config-editor-firefox)
 4. [Webdriver manager](https://github.com/SergeyPirogov/webdriver_manager)
-5. [GitHub Personal access token](https://docs.github.com/en/enterprise-server@3.4/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)
