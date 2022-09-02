@@ -52,9 +52,7 @@ def get_bankrupt_years_and_links(driver):
 
 
 def rename_and_move(ROOT_FOLDER, DOWNLOADS_FOLDER, region, year):
-    # # Wait until download is finished
-    # wait_for_download() deprecated. Used with
-    # Rename and move
+
     for file in os.listdir(DOWNLOADS_FOLDER):
         new_name = region + " " + year + " "
         renamed = new_name + file
@@ -99,13 +97,10 @@ def download_bankrupcy_file_from_table(driver):
     """
     EN
     Downloads Excel file from page.
-    ActionChains handles both cases when file is there or not found
 
     RU
     Скачивает файл Excel со страницы.
-    ActionChains обрабатывает оба случая, когда файл есть или не найден.
     """
-    # TODO: Kostanai unexpected table structure in 2017
 
     counter = len(XPATHS_TO_SEARCH_A_ELEMENTS)
     for xpath in XPATHS_TO_SEARCH_A_ELEMENTS:
@@ -136,8 +131,7 @@ def get_informational_messages(driver, xpath, key):
         for pattern in PATTERNS["regex_patterns_for_informational_messages"]:
             if pattern.match(a.text):
                 hrefs.append(a.get_attribute("href"))
-                # driver.get(a.get_attribute("href"))
-                # return
+
     if hrefs == []:
         information_for_developer = f"Поиск в: {key}"
         print(information_for_developer)

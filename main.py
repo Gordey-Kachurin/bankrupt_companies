@@ -1,9 +1,7 @@
-from re import L
 from settings import (
     ROOT_FOLDER,
     URLS,
     FIERFOX_PROFILE_PATH,
-    PATTERNS,
     DOWNLOADS_FOLDER,
     XPATHS_TO_SEARCH_INFORMATIONAL_MESSAGES,
 )
@@ -14,9 +12,8 @@ from utils.parsers import (
     rename_and_move,
     get_informational_messages,
 )
-import shutil
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import InvalidSelectorException, NoSuchElementException
+
+from selenium.common.exceptions import NoSuchElementException
 import os
 from utils.exceptions import DidNotFindInformationalMessage
 
