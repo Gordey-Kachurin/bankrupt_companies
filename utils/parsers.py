@@ -65,21 +65,21 @@ def rename_and_move(ROOT_FOLDER, DOWNLOADS_FOLDER, region, year):
         )
 
 
-def download_file(link_to_file):
+def get_file_and_save_it(link_to_file):
     r = requests.get(link_to_file, allow_redirects=True, timeout=5)
     head_tail = os.path.split(link_to_file)
     with open(os.path.join(DOWNLOADS_FOLDER, head_tail[1]), "wb") as fp:
         fp.write(r.content)
 
 
-def click_rehabilitation_and_bankrupcy_elements(a_elements):
+def find_links_to_files_and_download(a_elements):
 
     for a in a_elements:
         if PATTERNS["litigation"].match(a.text):
             if PATTERNS["bankrupcy"] in a.text:
                 print(a.text, a.get_attribute("href"))
                 try:
-                    download_file(a.get_attribute("href"))
+                    get_file_and_save_it(a.get_attribute("href"))
                 except Timeout:
                     print(f'Не дождался файла по ссылке {a.get_attribute("href")}')
                     continue
@@ -87,19 +87,19 @@ def click_rehabilitation_and_bankrupcy_elements(a_elements):
             if PATTERNS["rehabilitation"].match(a.text):
                 print(a.text, a.get_attribute("href"))
                 try:
-                    download_file(a.get_attribute("href"))
+                    get_file_and_save_it(a.get_attribute("href"))
                 except Timeout:
                     print(f'Не дождался файла по ссылке {a.get_attribute("href")}')
                     continue
 
 
-def download_bankrupcy_file_from_table(driver):
+def download_files(driver):
     """
     EN
-    Downloads Excel file from page.
+    Downloads Excel files from page.
 
     RU
-    Скачивает файл Excel со страницы.
+    Скачивает файлы Excel со страницы.
     """
 
     counter = len(XPATHS_TO_SEARCH_A_ELEMENTS)
@@ -108,7 +108,7 @@ def download_bankrupcy_file_from_table(driver):
         try:
             a_elements = driver.find_elements(By.XPATH, xpath)
             if a_elements != []:
-                click_rehabilitation_and_bankrupcy_elements(a_elements)
+                find_links_to_files_and_download(a_elements)
                 break
             else:
                 continue

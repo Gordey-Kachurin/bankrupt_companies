@@ -8,7 +8,7 @@ from settings import (
 from utils.webdriver_setup import get_driver
 from utils.parsers import (
     get_bankrupt_years_and_links,
-    download_bankrupcy_file_from_table,
+    download_files,
     rename_and_move,
     get_informational_messages,
 )
@@ -63,10 +63,10 @@ if __name__ == "__main__":
             print(info_messages_hrefs)
             # TODO Одинаковые файлы в разных ссылках на информационные сообщения.
             for hrefs in info_messages_hrefs:
-                for href in hrefs:
+                for info_messages_href in hrefs:
                     try:
-                        driver.get(href)
-                        download_bankrupcy_file_from_table(driver)
+                        driver.get(info_messages_href)
+                        download_files(driver)
                         rename_and_move(ROOT_FOLDER, DOWNLOADS_FOLDER, region, year)
                     except NoSuchElementException:
                         print(
