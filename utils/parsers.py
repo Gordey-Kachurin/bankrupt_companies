@@ -51,25 +51,28 @@ def get_bankrupt_years_and_links(driver):
     return years_and_links
 
 
-def rename_and_move(ROOT_FOLDER, DOWNLOADS_FOLDER, region, year):
+def rename_and_move(root_folder, source_folder, region, year):
 
-    for file in os.listdir(DOWNLOADS_FOLDER):
+    for filename in os.listdir(source_folder):
         new_name = region + " " + year + " "
-        renamed = new_name + file
+        renamed = new_name + filename
         os.rename(
-            os.path.join(DOWNLOADS_FOLDER, file),
-            os.path.join(DOWNLOADS_FOLDER, renamed),
+            os.path.join(source_folder, filename),
+            os.path.join(source_folder, renamed),
         )
         shutil.move(
-            os.path.join(DOWNLOADS_FOLDER, renamed), os.path.join(ROOT_FOLDER, region)
+            os.path.join(source_folder, renamed), os.path.join(root_folder, region)
         )
 
 
 def get_file_and_save_it(link_to_file):
-    r = requests.get(link_to_file, allow_redirects=True, timeout=5)
-    head_tail = os.path.split(link_to_file)
-    with open(os.path.join(DOWNLOADS_FOLDER, head_tail[1]), "wb") as fp:
-        fp.write(r.content)
+    response = requests.get(link_to_file, allow_redirects=True, timeout=5)
+    if response: # https://realpython.com/python-requests/
+        head_tail = os.path.split(link_to_file)
+        with open(os.path.join(DOWNLOADS_FOLDER, head_tail[1]), "wb") as fp:
+            fp.write(response.content)
+    else:
+        print(f"{response.status_code}: {head_tail[1]}")
 
 
 def find_links_to_files_and_download(a_elements):
