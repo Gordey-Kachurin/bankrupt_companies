@@ -67,12 +67,12 @@ def rename_and_move(root_folder, source_folder, region, year):
 
 def get_file_and_save_it(link_to_file):
     response = requests.get(link_to_file, allow_redirects=True, timeout=5)
-    if response: # https://realpython.com/python-requests/
-        head_tail = os.path.split(link_to_file)
+    head_tail = os.path.split(link_to_file)
+    if response:  # https://realpython.com/python-requests/
         with open(os.path.join(DOWNLOADS_FOLDER, head_tail[1]), "wb") as fp:
             fp.write(response.content)
     else:
-        print(f"{response.status_code}: {head_tail[1]}")
+        print(f"{response.status_code}: {head_tail[1]}".upper())
 
 
 def find_links_to_files_and_download(a_elements):
