@@ -2,6 +2,7 @@ import pandas as pd
 from openpyxl import load_workbook
 import sys
 import os
+import rarfile
 
 if os.getcwd() not in sys.path:
     sys.path.append(os.getcwd())
@@ -47,25 +48,37 @@ def create_directories_for_copies():
             os.mkdir(os.path.join(COPIES_FOLDER, region))
 
 def get_non_excel_files(downloads):
-    non_excel = {}
+    rar_files = {}
     
     for region in downloads:
         files = []
         for f in downloads[region]:
-  
-            print(f[-4:], f[-4:] )
-            if f[-4:] == ".xls" or f[-4:] == "xlsx":
-                continue
-            else:
+            if f[-4:] == ".rar":
                 files.append(f)
-        non_excel[region] = files
-    return non_excel
+            # if f[-4:] == ".xls" or f[-4:] == "xlsx":
+            #     continue
+            # else:
+            #     files.append(f)
+        if files != []:        
+            rar_files[region] = files
+    return rar_files
 
 downloads = get_downloaded_filenames()
 create_directories_for_copies()
-non_excel = get_non_excel_files(downloads)
+rar_files = get_non_excel_files(downloads)
 
-for region in downloads:
-    print(downloads[region])
-    for f in downloads[region]:
-        convert_xls_to_xlsx(os.path.join(ROOT_FOLDER, region, f), os.path.join(COPIES_FOLDER, region, f))
+# On Linux install sudo apt install unrar
+def extract_rar_files(rar_files):
+    rar_file_names = []
+    for region in rar_files:
+        for f_rar in rar_files[region]:
+            rf = rarfile.RarFile(os.path.join(ROOT_FOLDER, region, f_rar))
+            print(rf.filename)
+            rf.extractall(os.path.join(ROOT_FOLDER, region))
+             
+
+        
+# for region in downloads:
+#     print(downloads[region])
+#     for f in downloads[region]:
+#         convert_xls_to_xlsx(os.path.join(ROOT_FOLDER, region, f), os.path.join(COPIES_FOLDER, region, f))
