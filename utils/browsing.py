@@ -1,13 +1,19 @@
-from settings import PATTERNS, FOLDERS, XPATHS_TO_SEARCH_A_ELEMENTS
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import (
-    NoSuchElementException,
+from settings import (
+    PATTERNS,
+    FOLDERS,
+    XPATHS_TO_SEARCH_A_ELEMENTS,
+    URLS,
+    XPATHS_TO_SEARCH_INFORMATIONAL_MESSAGES,
 )
+from selenium.webdriver.common.by import By
 
-import os, shutil
+
+import os
 import requests
 from requests.exceptions import Timeout
-from .exceptions import DidNotFindInformationalMessage
+from selenium.common.exceptions import NoSuchElementException
+from utils.exceptions import DidNotFindInformationalMessage
+from utils.file_helpers import rename_and_move
 
 
 def get_bankrupt_years_and_links(driver):
@@ -49,20 +55,6 @@ def get_bankrupt_years_and_links(driver):
             print(a.text, a_href)
             years_and_links.append((a.text, a_href))
     return years_and_links
-
-
-def rename_and_move(downloads_folder, temp_folder, region, year):
-
-    for filename in os.listdir(temp_folder):
-        new_name = region + " " + year + " "
-        renamed = new_name + filename
-        os.rename(
-            os.path.join(temp_folder, filename),
-            os.path.join(temp_folder, renamed),
-        )
-        shutil.move(
-            os.path.join(temp_folder, renamed), os.path.join(downloads_folder, region)
-        )
 
 
 def get_file_and_save_it(link_to_file):
@@ -140,3 +132,56 @@ def get_informational_messages(driver, xpath, key):
         print(information_for_developer)
         raise DidNotFindInformationalMessage(information_for_developer)
     return hrefs
+
+
+def browse_for_files(driver):
+    for region in URLS:
+        print(region.upper())
+        region_folder_path = os.path.join(FOLDERS["downloads"], region)
+        if not os.path.exists(region_folder_path):
+            os.mkdir(region_folder_path)
+
+        # TODO: Download files to folders depending on region.
+        # Somehow the following is not helping
+        # driver.firefox_profile.set_preference("browser.download.dir", region_folder_path)
+        # driver.profile.set_preference("browser.download.dir", region_folder_path)
+
+        driver.get(URLS[region] + "/ru")
+        bankrupt_years_and_links = get_bankrupt_years_and_links(driver)
+        for year, link in bankrupt_years_and_links:
+            driver.get(link)
+
+            info_messages_hrefs = []
+            for key in XPATHS_TO_SEARCH_INFORMATIONAL_MESSAGES.keys():
+                try:
+                    hrefs = get_informational_messages(
+                        driver, XPATHS_TO_SEARCH_INFORMATIONAL_MESSAGES[key], key
+                    )
+                    if hrefs != []:
+                        info_messages_hrefs.append(hrefs)
+
+                except DidNotFindInformationalMessage as e:
+                    print(
+                        f"{region}, {year}: не найдена ссылка на Информационные сообщения. {e.message}."
+                    )
+                    continue
+                except NoSuchElementException:
+                    print(f"{region}, {year}: не найдены элементы для поиска.")
+                    continue
+
+            print(region, year)
+            print(info_messages_hrefs)
+            # TODO Одинаковые файлы в разных ссылках на информационные сообщения.
+            for hrefs in info_messages_hrefs:
+                for info_messages_href in hrefs:
+                    try:
+                        driver.get(info_messages_href)
+                        download_files(driver)
+                        rename_and_move(
+                            FOLDERS["downloads"], FOLDERS["temp"], region, year
+                        )
+                    except NoSuchElementException:
+                        print(
+                            f"Для {region} не найдена таблица с перечнем документов за {year}"
+                        )
+                        continue
