@@ -9,7 +9,7 @@ import xlrd
 if os.getcwd() not in sys.path:
     sys.path.append(os.getcwd())
 from settings import (
-    REGEX_PATTERNS_FOR_XLSX_HEADERS,
+    PATTERNS_FOR_XLSX_TABLENAME,
     URLS,
     FOLDERS,
 )
@@ -37,11 +37,11 @@ def create_directories_for_copies(downloads_folder):
             os.mkdir(os.path.join(FOLDERS["copies"], region))
 
 
-def get_downloaded_filenames_by_region():
+def get_filenames_by_region(folder_with_regions):
     downloads = {}
     for region in URLS:
         try:
-            files = os.listdir(os.path.join(FOLDERS["downloads"], region))
+            files = os.listdir(os.path.join(folder_with_regions, region))
         except FileNotFoundError:
             continue
         downloads[region] = files
@@ -90,26 +90,36 @@ def delete_rar_files(region_rar_files):
 def convert_xls_to_xlsx(
     path_to_source_file, path_to_destination_file, engine_for_source=None
 ):
+    # TODO: Check to work with multiple sheets
+    # xls = pd.ExcelFile('path_to_file.xls')
+    # df1 = pd.read_excel(xls, 'Sheet1')
+    # df2 = pd.read_excel(xls, 'Sheet2')
     pd.read_excel(path_to_source_file, engine=engine_for_source).to_excel(
         path_to_destination_file, engine="openpyxl", index=False
     )
 
 
-def get_xlsx_headers_cells(path_to_xlsx):
+def get_xlsx_content_headers(path_to_xlsx, patterns):
     wb = load_workbook(filename=path_to_xlsx)
     sheet = wb.active
-    xlsx_headers = {}
-    for row in sheet.iter_rows():
-        for cell in row:
-            for key in REGEX_PATTERNS_FOR_XLSX_HEADERS:
-                try:
-                    if REGEX_PATTERNS_FOR_XLSX_HEADERS[key].match(cell.value):
-                        print(cell.coordinate, cell.value)
-                        xlsx_headers[key] = cell
-                except TypeError:
+    xlsx_cells = {}
+    for field in patterns:
+        for pattern in patterns[field]:
+            for row in sheet.iter_rows():
+                for cell in row:
+                    try:
+                        if pattern.match(cell.value):
+                            print(f"{cell.coordinate}: {cell.value}")
+                            xlsx_cells[field] = cell
+                            break
+                    except TypeError:
+                        continue
+                if field not in xlsx_cells.keys():
                     continue
+                break
+
     wb.close()
-    return xlsx_headers
+    return xlsx_cells
 
 
 def copy_files(downloads, engine_for_source=None):
@@ -182,7 +192,7 @@ def copy_files(downloads, engine_for_source=None):
 
 
 def prepare_excel_files_for_parsing():
-    downloads = get_downloaded_filenames_by_region()
+    downloads = get_filenames_by_region(FOLDERS["downloads"])
     regions_rar_files = get_regions_files_by_file_extention(downloads, ".rar")
     extract_from_rar(regions_rar_files)
     delete_rar_files(regions_rar_files)
@@ -191,3 +201,26 @@ def prepare_excel_files_for_parsing():
     regions_xlsx_files = get_regions_files_by_file_extention(downloads, ".xlsx")
     copy_files(regions_xls_files, engine_for_source="xlrd")
     copy_files(regions_xlsx_files, engine_for_source=None)
+
+
+def get_file_headers(patterns_dict):
+    # TODO: Unexpected language in Excel file
+    # https://akm.kgd.gov.kz/ru/content/informacionnye-soobshcheniya-4-3
+    # Page in Russian, Excel file in Kazakh
+    # Mangistau 2019 https://mng.kgd.gov.kz/ru/content/informacionnye-soobshcheniya-14-3
+    # Unexpected filetype
+    # Объявления о проведении собрания кредиторов  в процедуре банкротства
+
+    copies = get_filenames_by_region(FOLDERS["copies"])
+    regions_xlsx_files = get_regions_files_by_file_extention(copies, ".xlsx")
+    for region in regions_xlsx_files:
+        for filename in regions_xlsx_files[region]:
+            print(filename)
+            table_name = get_xlsx_content_headers(
+                os.path.join(FOLDERS["copies"], region, filename), patterns_dict
+            )
+
+            print(f"{table_name['litigation']}")
+
+
+get_file_headers(PATTERNS_FOR_XLSX_TABLENAME)

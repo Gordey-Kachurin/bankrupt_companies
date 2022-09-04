@@ -55,15 +55,24 @@ REGEX_PATTERNS_FOR_XLSX_HEADERS = {
     "dolzhnik": re.compile(r"Наименование /Ф.И.О.должника"),
 }
 
+PATTERNS_FOR_XLSX_TABLENAME = {
+    # On pages in Russian, Excel files may be in Kazakh
+    "litigation": [
+        re.compile(r".*возбуждени[ие].*"),
+        re.compile(r".*іс қозғалғандығы.*"),
+        re.compile(r".*іс жүргізуді қозғау.*"),
+    ],
+}
+
 XPATHS_TO_SEARCH_A_ELEMENTS = [
-    f"//table/tbody/tr//a",
-    f"//div[@class='content']//div[@class='field-items']//ul/li/a",
-    f"//div[@class='content']//div[@class='field-items']//p/a",
+    "//table/tbody/tr//a",
+    "//div[@class='content']//div[@class='field-items']//ul/li/a",
+    "//div[@class='content']//div[@class='field-items']//p/a",
 ]
 
 XPATHS_TO_SEARCH_INFORMATIONAL_MESSAGES = {
-    "view-header": f"//div[@class='content']/div[contains(@class,'view-taxonomy-term')]/div[@class='view-header']/div[@class='catmenu']/ul[@class='menu']/li/a",
-    "view-content": f"//div[@class='content']/div[contains(@class,'view-taxonomy-term')]/div[@class='view-content']//h3/a",
+    "view-header": "//div[@class='content']/div[contains(@class,'view-taxonomy-term')]/div[@class='view-header']/div[@class='catmenu']/ul[@class='menu']/li/a",
+    "view-content": "//div[@class='content']/div[contains(@class,'view-taxonomy-term')]/div[@class='view-content']//h3/a",
 }
 
 URLS = {
