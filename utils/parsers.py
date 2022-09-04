@@ -1,4 +1,4 @@
-from settings import PATTERNS, DOWNLOADS_FOLDER, XPATHS_TO_SEARCH_A_ELEMENTS
+from settings import PATTERNS, FOLDERS, XPATHS_TO_SEARCH_A_ELEMENTS
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import (
     NoSuchElementException,
@@ -51,17 +51,17 @@ def get_bankrupt_years_and_links(driver):
     return years_and_links
 
 
-def rename_and_move(root_folder, source_folder, region, year):
+def rename_and_move(downloads_folder, temp_folder, region, year):
 
-    for filename in os.listdir(source_folder):
+    for filename in os.listdir(temp_folder):
         new_name = region + " " + year + " "
         renamed = new_name + filename
         os.rename(
-            os.path.join(source_folder, filename),
-            os.path.join(source_folder, renamed),
+            os.path.join(temp_folder, filename),
+            os.path.join(temp_folder, renamed),
         )
         shutil.move(
-            os.path.join(source_folder, renamed), os.path.join(root_folder, region)
+            os.path.join(temp_folder, renamed), os.path.join(downloads_folder, region)
         )
 
 
@@ -69,7 +69,7 @@ def get_file_and_save_it(link_to_file):
     response = requests.get(link_to_file, allow_redirects=True, timeout=5)
     head_tail = os.path.split(link_to_file)
     if response:  # https://realpython.com/python-requests/
-        with open(os.path.join(DOWNLOADS_FOLDER, head_tail[1]), "wb") as fp:
+        with open(os.path.join(FOLDERS["temp"], head_tail[1]), "wb") as fp:
             fp.write(response.content)
     else:
         print(f"{response.status_code}: {head_tail[1]}".upper())

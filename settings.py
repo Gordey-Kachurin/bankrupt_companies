@@ -24,8 +24,13 @@ if platform.system() == "Linux":
         os.environ["HOME"], "Desktop", "Rehabilitation and Bankrupcy"
     )
 
-DOWNLOADS_FOLDER = os.path.join(ROOT_FOLDER, "temp")
-COPIES_FOLDER = os.path.join(ROOT_FOLDER, "copies")
+FOLDERS = {
+    "root": ROOT_FOLDER,
+    "temp": os.path.join(ROOT_FOLDER, "temp"),
+    "downloads": os.path.join(ROOT_FOLDER, "downloads"),
+    "copies": os.path.join(ROOT_FOLDER, "copies"),
+}
+
 
 PATTERNS = {
     "legal_entities": "Юридическим лицам",

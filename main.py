@@ -1,8 +1,7 @@
 from settings import (
-    ROOT_FOLDER,
     URLS,
     FIERFOX_PROFILE_PATH,
-    DOWNLOADS_FOLDER,
+    FOLDERS,
     XPATHS_TO_SEARCH_INFORMATIONAL_MESSAGES,
 )
 from utils.webdriver_setup import get_driver
@@ -18,16 +17,15 @@ import os
 from utils.exceptions import DidNotFindInformationalMessage
 
 if __name__ == "__main__":
-    if not os.path.exists(ROOT_FOLDER):
-        os.mkdir(ROOT_FOLDER)
-    if not os.path.exists(DOWNLOADS_FOLDER):
-        os.mkdir(DOWNLOADS_FOLDER)
+    for folder in FOLDERS:
+        if not os.path.exists(FOLDERS[folder]):
+            os.mkdir(FOLDERS[folder])
 
     driver = get_driver(FIERFOX_PROFILE_PATH)
 
     for region in URLS:
         print(region)
-        region_folder_path = os.path.join(ROOT_FOLDER, region)
+        region_folder_path = os.path.join(FOLDERS["downloads"], region)
         if not os.path.exists(region_folder_path):
             os.mkdir(region_folder_path)
 
@@ -67,7 +65,9 @@ if __name__ == "__main__":
                     try:
                         driver.get(info_messages_href)
                         download_files(driver)
-                        rename_and_move(ROOT_FOLDER, DOWNLOADS_FOLDER, region, year)
+                        rename_and_move(
+                            FOLDERS["downloads"], FOLDERS["temp"], region, year
+                        )
                     except NoSuchElementException:
                         print(
                             f"Для {region} не найдена таблица с перечнем документов за {year}"
