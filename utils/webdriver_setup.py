@@ -1,6 +1,6 @@
 from selenium import webdriver
 from webdriver_manager.firefox import GeckoDriverManager
-from settings import DOWNLOADS_FOLDER
+from settings import FOLDERS
 from selenium.webdriver.firefox.options import Options
 
 
@@ -18,7 +18,7 @@ def set_profile(path_to_profile):
     # https://www.selenium.dev/selenium/docs/api/py/webdriver_firefox/selenium.webdriver.firefox.firefox_profile.html
     profile.set_preference("browser.download.folderList", 2)
     profile.set_preference("browser.download.manager.showWhenStarting", False)
-    profile.set_preference("browser.download.dir", DOWNLOADS_FOLDER)
+    profile.set_preference("browser.download.dir", FOLDERS["temp"])
 
     return profile
 
@@ -27,7 +27,7 @@ def set_options():
     options = Options()
     options.set_preference("browser.download.folderList", 2)
     options.set_preference("browser.download.manager.showWhenStarting", False)
-    options.set_preference("browser.download.dir", DOWNLOADS_FOLDER)
+    options.set_preference("browser.download.dir", FOLDERS["temp"])
     return options
 
 
