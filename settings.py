@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import os
 import re
 import platform
+import rarfile
 
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 
@@ -14,6 +15,12 @@ if platform.system() == "Windows":
         os.path.join(os.path.join(os.environ["USERPROFILE"]), "Desktop"),
         "Rehabilitation and Bankrupcy",
     )  # TODO: Russian language gives weird errors in foldername
+
+    SEVEN_ZIP_PATH = "C:\\Program Files\\7-Zip"
+    if SEVEN_ZIP_PATH not in os.environ["PATH"]:
+        os.environ["PATH"] += os.pathsep + SEVEN_ZIP_PATH
+
+    rarfile.RarFile.UNRAR_TOOL = os.path.join(os.getcwd(), "UnRAR.exe")
 
 if platform.system() == "Linux":
     FIREFOX_PROFILE_FOLDER = "9h9tufst.default-release"

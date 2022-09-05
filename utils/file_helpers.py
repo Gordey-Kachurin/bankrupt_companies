@@ -5,7 +5,7 @@ import os
 import shutil
 import rarfile
 import xlrd
-import platform
+import subprocess
 
 if os.getcwd() not in sys.path:
     sys.path.append(os.getcwd())
@@ -70,27 +70,35 @@ def get_regions_files_by_file_extention(downloads, file_extention):
     return regions_files_by_file_extention
 
 
-def extract_from_rar(regions_rar_files):
+def extract_from_rar(regions_rar_files, use_7zip=True):
     """
-    On Linux install unrar: sudo apt install unrar
-    On windows download "UnRAR for Windows" - "Command line freeware Windows UnRAR."
-        from https://www.rarlab.com/rar_add.htm
-    Exctract file to current working directory
-    Set rarfile.RarFile.UNRAR_TOOL to path to UnRAR.exe
-    TODO: try with 7z and subprocess
+    To use rarfile
+        On Linux install unrar: sudo apt install unrar
+        On windows download "UnRAR for Windows" - "Command line freeware Windows UnRAR."
+            from https://www.rarlab.com/rar_add.htm
+        Exctract file to current working directory
+        Set rarfile.RarFile.UNRAR_TOOL to path to UnRAR.exe
+
+    To use 7zip download 7zip: https://www.7-zip.org/
     """
 
     for region in regions_rar_files:
         for rar_filename in regions_rar_files[region]:
             splitted = rar_filename.split()
             year = splitted[1] + " " + splitted[2]
-            if platform.system() == "Windows":
-                rarfile.RarFile.UNRAR_TOOL = os.path.join(os.getcwd(), "UnRAR.exe")
-            with rarfile.RarFile(
-                os.path.join(FOLDERS["downloads"], region, rar_filename)
-            ) as rf:
-                rf.extractall(FOLDERS["temp"])
-                print(f"Extracted: {rf.filename}")
+
+            if use_7zip:
+                src_root = os.path.join(FOLDERS["downloads"], region, rar_filename)
+                dest = FOLDERS["temp"]
+                subprocess.run(f'7z x "{src_root}" -o"{dest}"')
+                print(f"Extracted from: {rar_filename}")
+            else:
+                with rarfile.RarFile(
+                    os.path.join(FOLDERS["downloads"], region, rar_filename)
+                ) as rf:
+                    rf.extractall(FOLDERS["temp"])
+                    print(f"Extracted: {rf.filename}")
+
             rename_and_move(FOLDERS["downloads"], FOLDERS["temp"], region, year)
 
 

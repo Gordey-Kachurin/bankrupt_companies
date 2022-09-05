@@ -5,15 +5,11 @@ Settings -> Developer settings -> Personal access tokens.
 3. Write to .env: [GH_TOKEN](https://github.com/SergeyPirogov/webdriver_manager#configuration)=your token
 4. Provide Firefox profile folder name in settings at [FIREFOX_PROFILE_FOLDER](settings.py) variable.
 Profile folder location: Help -> Troubleshooting Information -> Profile folder
-
-Install unrar. On Linux:
-```
-sudo apt install unrar
-```
-On Windows download "UnRAR for Windows" - "Command line freeware Windows UnRAR" from https://www.rarlab.com/rar_add.htm.
-Exctract file to current working directory.
-
-There are plans to make it work with 7zip.
+5. Depending on library you use:
+    1. [**rarfile**](https://pypi.org/project/rarfile/).\
+    On Linux install unrar: `sudo apt install unrar`.\
+    On Windows download ["UnRAR for Windows"](https://www.rarlab.com/rar_add.htm) (Command line freeware Windows UnRAR). Then extract file to current working directory.
+    2. [**subprocess**](https://docs.python.org/3/library/subprocess.html). Download and install [7-zip](https://www.7-zip.org/).
 
 # Useful links
 1. [Firefox driver](https://github.com/mozilla/geckodriver/releases)
