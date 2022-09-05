@@ -227,15 +227,19 @@ def prepare_excel_files_for_parsing():
     copy_files(regions_xlsx_files, engine_for_source=None)
 
 
-def check_not_matched_patterns(xlsx_cells, patterns_dict):
+def check_matched_patterns(xlsx_cells, patterns_dict):
     # Check for not matched patterns
+    matched_fields = []
     not_matched_fields = []
     for field in patterns_dict:
         try:
             xlsx_cells[field]
+            matched_fields.append(
+                (field, xlsx_cells[field].coordinate, xlsx_cells[field].value)
+            )
         except KeyError:
             not_matched_fields.append(field)
-    return not_matched_fields
+    return matched_fields, not_matched_fields
 
 
 def map_fieds_to_filename(filename, not_matched_fields):
@@ -262,8 +266,13 @@ def get_file_headers(patterns_dict):
 
     copies = get_filenames_by_region(FOLDERS["copies"])
     regions_xlsx_files = get_regions_files_by_file_extention(copies, ".xlsx")
+    matched_files = []
     not_matched_files = []
+
+    matched_region = {}
     not_matched_region = {}
+
+    matched_to_return = []
     not_matched_to_return = []
     for region in regions_xlsx_files:
 
@@ -272,26 +281,38 @@ def get_file_headers(patterns_dict):
             xlsx_cells = get_xlsx_content_headers(
                 os.path.join(FOLDERS["copies"], region, filename), patterns_dict
             )
-            not_matched_fields = check_not_matched_patterns(xlsx_cells, patterns_dict)
+            matched_fields, not_matched_fields = check_matched_patterns(
+                xlsx_cells, patterns_dict
+            )
+            matched_file = map_fieds_to_filename(filename, matched_fields.copy())
             not_matched_file = map_fieds_to_filename(
                 filename, not_matched_fields.copy()
             )
+            if matched_file != {}:
+                matched_files.append(matched_file.copy())
+
             if not_matched_file != {}:
                 not_matched_files.append(not_matched_file.copy())
+        matched_region = map_filename_to_region(region, matched_files.copy())
         not_matched_region = map_filename_to_region(region, not_matched_files.copy())
+
+        matched_to_return.append(matched_region.copy())
         not_matched_to_return.append(not_matched_region.copy())
+
+        matched_files.clear()
+        matched_region.clear()
         not_matched_files.clear()
         not_matched_region.clear()
 
-    return not_matched_to_return
+    return matched_to_return, not_matched_to_return
 
 
-def write_errors(errors_while_searching):
+def write_matched_or_not_dict_to_file(matched_or_not_dict, output_filename):
     now = datetime.now()
     current_time = now.strftime("%Y-%m-%d %H hour(s)")
-    with open(os.path.join(FOLDERS["log"], "Not found in Excel.txt"), "a") as fp:
-        for index, item in enumerate(errors_while_searching):
-            for region in errors_while_searching[index]:
+    with open(os.path.join(FOLDERS["log"], output_filename), "a") as fp:
+        for index, item in enumerate(matched_or_not_dict):
+            for region in matched_or_not_dict[index]:
                 for idx, fl in enumerate(item[region]):
                     for filename in item[region][idx]:
                         fp.write(

@@ -3,7 +3,7 @@ from utils.webdriver_setup import get_driver
 from utils.file_helpers import (
     prepare_excel_files_for_parsing,
     get_file_headers,
-    write_errors,
+    write_matched_or_not_dict_to_file,
 )
 from utils.browsing import browse_for_files
 import os
@@ -17,5 +17,6 @@ if __name__ == "__main__":
     browse_for_files(driver)
     driver.quit()
     prepare_excel_files_for_parsing()
-    errors_while_searching = get_file_headers(PATTERNS_FOR_XLSX_TABLENAME)
-    write_errors(errors_while_searching)
+    matched, not_matched = get_file_headers(PATTERNS_FOR_XLSX_TABLENAME)
+    write_matched_or_not_dict_to_file(matched, "Matched.txt")
+    write_matched_or_not_dict_to_file(not_matched, "Not_matched.txt")
