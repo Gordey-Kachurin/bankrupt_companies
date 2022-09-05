@@ -11,9 +11,21 @@ from selenium.webdriver.common.by import By
 import os
 import requests
 from requests.exceptions import Timeout
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, WebDriverException
 from utils.exceptions import DidNotFindInformationalMessage
 from utils.file_helpers import rename_and_move
+
+
+def driver_get(driver, link, number_of_tries):
+    for index in range(number_of_tries):
+        try:
+            driver.get(link)
+            break
+        except WebDriverException:
+            print(f"### Failed {index+1} time(s): {link}")
+            if (index + 1) == number_of_tries:
+                print("Check internet connection")
+            continue
 
 
 def get_bankrupt_years_and_links(driver):
@@ -38,7 +50,7 @@ def get_bankrupt_years_and_links(driver):
     reabilitaciya_bankrotstvo = driver.find_element(
         By.XPATH, f"//*[ text() = '{text}' ]"
     )
-    driver.get(reabilitaciya_bankrotstvo.get_attribute("href"))
+    driver_get(driver, reabilitaciya_bankrotstvo.get_attribute("href"), 3)
 
     years_list = driver.find_element(
         By.XPATH, "//div[@class='catmenu']/ul[@class='menu']"
@@ -135,6 +147,9 @@ def get_informational_messages(driver, xpath, key):
 
 
 def browse_for_files(driver):
+    # TODO: selenium.common.exceptions.WebDriverException: Message: Reached error page:
+    # Мы не можем подключиться к серверу akm.kgd.gov.kz.
+    # Возможно, вы хотели перейти на akm.kgd.gov.kz/ru/depsection/2022-god?
     for region in URLS:
         print(region.upper())
         region_folder_path = os.path.join(FOLDERS["downloads"], region)
@@ -146,10 +161,11 @@ def browse_for_files(driver):
         # driver.firefox_profile.set_preference("browser.download.dir", region_folder_path)
         # driver.profile.set_preference("browser.download.dir", region_folder_path)
 
-        driver.get(URLS[region] + "/ru")
+        driver_get(driver, (URLS[region] + "/ru"), 3)
+
         bankrupt_years_and_links = get_bankrupt_years_and_links(driver)
         for year, link in bankrupt_years_and_links:
-            driver.get(link)
+            driver_get(driver, link, 3)
 
             info_messages_hrefs = []
             for key in XPATHS_TO_SEARCH_INFORMATIONAL_MESSAGES.keys():
@@ -175,7 +191,8 @@ def browse_for_files(driver):
             for hrefs in info_messages_hrefs:
                 for info_messages_href in hrefs:
                     try:
-                        driver.get(info_messages_href)
+                        driver_get(driver, info_messages_href, 3)
+
                         download_files(driver)
                         rename_and_move(
                             FOLDERS["downloads"], FOLDERS["temp"], region, year

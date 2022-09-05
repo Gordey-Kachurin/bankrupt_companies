@@ -26,9 +26,15 @@ def rename_and_move(downloads_folder, temp_folder, region, year):
             os.path.join(temp_folder, filename),
             os.path.join(temp_folder, renamed),
         )
-        shutil.move(
-            os.path.join(temp_folder, renamed), os.path.join(downloads_folder, region)
-        )
+        try:
+            shutil.move(
+                os.path.join(temp_folder, renamed),
+                os.path.join(downloads_folder, region),
+            )
+        except shutil.Error as e:
+            print(e)
+            os.remove(os.path.join(temp_folder, renamed))
+            print(f"Removed: {renamed}")
 
 
 def create_directories_for_copies(downloads_folder):
