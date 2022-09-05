@@ -6,6 +6,15 @@ Settings -> Developer settings -> Personal access tokens.
 4. Provide Firefox profile folder name in settings at [FIREFOX_PROFILE_FOLDER](settings.py) variable.
 Profile folder location: Help -> Troubleshooting Information -> Profile folder
 
+Install unrar. On Linux:
+```
+sudo apt install unrar
+```
+On Windows download "UnRAR for Windows" - "Command line freeware Windows UnRAR" from https://www.rarlab.com/rar_add.htm.
+Exctract file to current working directory.
+
+There are plans to make it work with 7zip.
+
 # Useful links
 1. [Firefox driver](https://github.com/mozilla/geckodriver/releases)
 2. [Firefox configs](http://kb.mozillazine.org/About:config_entries)

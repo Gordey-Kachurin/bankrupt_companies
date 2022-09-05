@@ -5,11 +5,11 @@ import os
 import shutil
 import rarfile
 import xlrd
+import platform
 
 if os.getcwd() not in sys.path:
     sys.path.append(os.getcwd())
 from settings import (
-    PATTERNS_FOR_XLSX_TABLENAME,
     URLS,
     FOLDERS,
 )
@@ -73,17 +73,24 @@ def get_regions_files_by_file_extention(downloads, file_extention):
 def extract_from_rar(regions_rar_files):
     """
     On Linux install unrar: sudo apt install unrar
+    On windows download "UnRAR for Windows" - "Command line freeware Windows UnRAR."
+        from https://www.rarlab.com/rar_add.htm
+    Exctract file to current working directory
+    Set rarfile.RarFile.UNRAR_TOOL to path to UnRAR.exe
+    TODO: try with 7z and subprocess
     """
 
     for region in regions_rar_files:
         for rar_filename in regions_rar_files[region]:
             splitted = rar_filename.split()
             year = splitted[1] + " " + splitted[2]
-            rf = rarfile.RarFile(
+            if platform.system() == "Windows":
+                rarfile.RarFile.UNRAR_TOOL = os.path.join(os.getcwd(), "UnRAR.exe")
+            with rarfile.RarFile(
                 os.path.join(FOLDERS["downloads"], region, rar_filename)
-            )
-            rf.extractall(FOLDERS["temp"])
-            print(f"Extracted: {rf.filename}")
+            ) as rf:
+                rf.extractall(FOLDERS["temp"])
+                print(f"Extracted: {rf.filename}")
             rename_and_move(FOLDERS["downloads"], FOLDERS["temp"], region, year)
 
 
@@ -229,4 +236,4 @@ def get_file_headers(patterns_dict):
             print(f"{table_name['litigation']}")
 
 
-get_file_headers(PATTERNS_FOR_XLSX_TABLENAME)
+# get_file_headers(PATTERNS_FOR_XLSX_TABLENAME)
