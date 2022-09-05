@@ -10,7 +10,7 @@ from datetime import datetime
 
 if os.getcwd() not in sys.path:
     sys.path.append(os.getcwd())
-from settings import URLS, FOLDERS, PATTERNS_FOR_XLSX_TABLENAME
+from settings import URLS, FOLDERS
 
 from utils.exceptions import UnexpectedFileExtention
 
@@ -273,9 +273,12 @@ def get_file_headers(patterns_dict):
                 os.path.join(FOLDERS["copies"], region, filename), patterns_dict
             )
             not_matched_fields = check_not_matched_patterns(xlsx_cells, patterns_dict)
-            not_matched_file = map_fieds_to_filename(filename, not_matched_fields)
-            not_matched_files.append(not_matched_file.copy())
-        not_matched_region = map_filename_to_region(region, not_matched_files)
+            not_matched_file = map_fieds_to_filename(
+                filename, not_matched_fields.copy()
+            )
+            if not_matched_file != {}:
+                not_matched_files.append(not_matched_file.copy())
+        not_matched_region = map_filename_to_region(region, not_matched_files.copy())
         not_matched_to_return.append(not_matched_region.copy())
         not_matched_files.clear()
         not_matched_region.clear()
@@ -285,16 +288,12 @@ def get_file_headers(patterns_dict):
 
 def write_errors(errors_while_searching):
     now = datetime.now()
-    current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-    with open(
-        os.path.join(FOLDERS["log"], "Unexpected pattern in Excel.txt"), "a"
-    ) as fp:
-        for region in errors_while_searching:
-            for filenames in errors_while_searching[region]:
-                for filename in filenames:
-                    for field in filenames[filename]:
-                        fp.write(f"{current_time}: {filename} {field}\n")
-
-
-errors_while_searching = get_file_headers(PATTERNS_FOR_XLSX_TABLENAME)
-write_errors(errors_while_searching)
+    current_time = now.strftime("%Y-%m-%d %H hour(s)")
+    with open(os.path.join(FOLDERS["log"], "Not found in Excel.txt"), "a") as fp:
+        for index, item in enumerate(errors_while_searching):
+            for region in errors_while_searching[index]:
+                for idx, fl in enumerate(item[region]):
+                    for filename in item[region][idx]:
+                        fp.write(
+                            f"{current_time}: {filename}({item[region][idx][filename]})\n"
+                        )
