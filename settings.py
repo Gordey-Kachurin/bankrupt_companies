@@ -36,6 +36,8 @@ FOLDERS = {
     "temp": os.path.join(ROOT_FOLDER, "temp"),
     "downloads": os.path.join(ROOT_FOLDER, "downloads"),
     "copies": os.path.join(ROOT_FOLDER, "copies"),
+    "log": os.path.join(ROOT_FOLDER, "log"),
+    "errors": os.path.join(ROOT_FOLDER, "errors"),
 }
 
 
@@ -64,10 +66,8 @@ REGEX_PATTERNS_FOR_XLSX_HEADERS = {
 
 PATTERNS_FOR_XLSX_TABLENAME = {
     # On pages in Russian, Excel files may be in Kazakh
-    "litigation": [
+    "table_name": [
         re.compile(r".*возбуждени[ие].*"),
-        re.compile(r".*іс қозғалғандығы.*"),
-        re.compile(r".*іс жүргізуді қозғау.*"),
     ],
 }
 

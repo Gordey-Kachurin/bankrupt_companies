@@ -6,13 +6,11 @@ import shutil
 import rarfile
 import xlrd
 import subprocess
+from datetime import datetime
 
 if os.getcwd() not in sys.path:
     sys.path.append(os.getcwd())
-from settings import (
-    URLS,
-    FOLDERS,
-)
+from settings import URLS, FOLDERS, PATTERNS_FOR_XLSX_TABLENAME
 
 from utils.exceptions import UnexpectedFileExtention
 
@@ -133,10 +131,15 @@ def get_xlsx_content_headers(path_to_xlsx, patterns):
                             print(f"{cell.coordinate}: {cell.value}")
                             xlsx_cells[field] = cell
                             break
+                    # Handle cells with None value (empty cells)
                     except TypeError:
                         continue
+                # When pattern not found in the current row,
+                # look at the next row because next 'break'
+                # will not allow you to look past first row
                 if field not in xlsx_cells.keys():
                     continue
+                # Check next field pattern
                 break
 
     wb.close()
@@ -224,6 +227,31 @@ def prepare_excel_files_for_parsing():
     copy_files(regions_xlsx_files, engine_for_source=None)
 
 
+def check_not_matched_patterns(xlsx_cells, patterns_dict):
+    # Check for not matched patterns
+    not_matched_fields = []
+    for field in patterns_dict:
+        try:
+            xlsx_cells[field]
+        except KeyError:
+            not_matched_fields.append(field)
+    return not_matched_fields
+
+
+def map_fieds_to_filename(filename, not_matched_fields):
+    not_matched_file = {}
+    if not_matched_fields != []:
+        not_matched_file[filename] = not_matched_fields
+    return not_matched_file
+
+
+def map_filename_to_region(region, not_matched_files):
+    not_matched_region = {}
+    if not_matched_files != []:
+        not_matched_region[region] = not_matched_files
+    return not_matched_region
+
+
 def get_file_headers(patterns_dict):
     # TODO: Unexpected language in Excel file
     # https://akm.kgd.gov.kz/ru/content/informacionnye-soobshcheniya-4-3
@@ -234,14 +262,39 @@ def get_file_headers(patterns_dict):
 
     copies = get_filenames_by_region(FOLDERS["copies"])
     regions_xlsx_files = get_regions_files_by_file_extention(copies, ".xlsx")
+    not_matched_files = []
+    not_matched_region = {}
+    not_matched_to_return = []
     for region in regions_xlsx_files:
+
         for filename in regions_xlsx_files[region]:
-            print(filename)
-            table_name = get_xlsx_content_headers(
+            # print(filename)
+            xlsx_cells = get_xlsx_content_headers(
                 os.path.join(FOLDERS["copies"], region, filename), patterns_dict
             )
+            not_matched_fields = check_not_matched_patterns(xlsx_cells, patterns_dict)
+            not_matched_file = map_fieds_to_filename(filename, not_matched_fields)
+            not_matched_files.append(not_matched_file.copy())
+        not_matched_region = map_filename_to_region(region, not_matched_files)
+        not_matched_to_return.append(not_matched_region.copy())
+        not_matched_files.clear()
+        not_matched_region.clear()
 
-            print(f"{table_name['litigation']}")
+    return not_matched_to_return
 
 
-# get_file_headers(PATTERNS_FOR_XLSX_TABLENAME)
+def write_errors(errors_while_searching):
+    now = datetime.now()
+    current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+    with open(
+        os.path.join(FOLDERS["log"], "Unexpected pattern in Excel.txt"), "a"
+    ) as fp:
+        for region in errors_while_searching:
+            for filenames in errors_while_searching[region]:
+                for filename in filenames:
+                    for field in filenames[filename]:
+                        fp.write(f"{current_time}: {filename} {field}\n")
+
+
+errors_while_searching = get_file_headers(PATTERNS_FOR_XLSX_TABLENAME)
+write_errors(errors_while_searching)
